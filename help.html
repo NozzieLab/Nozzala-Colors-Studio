@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Nozzala Colors 灯语工作室使用说明：设置五种灯语并保存到设备。">
+  <title>使用说明 · Nozzala Colors</title>
+  <link rel="stylesheet" href="styles.css?v=20260913-i18n2">
+  <style>
+    .guide{max-width:850px;padding-top:32px;line-height:1.9}.guide h1{font-size:30px}.guide h2{font-size:20px;margin:28px 0 12px}.guide h3{font-size:15px;margin:20px 0 7px}.guide p,.guide li{color:#586750}.guide .panel{padding:24px;margin:20px 0}.guide a{color:#3c704c}.guide code{background:#eef2e8;border-radius:4px;padding:2px 5px;font-size:12px}.guide table{width:100%;border-collapse:collapse;font-size:12px}.guide th,.guide td{text-align:left;padding:10px;border-bottom:1px solid #e3e8dd}.guide .notice{font-size:13px}.guide ol{padding-left:23px}.guide .back{display:inline-block;margin-bottom:25px}.guide details{border-top:1px solid #e3e8dd;padding:12px 0}.guide summary{cursor:pointer;font-weight:600}.guide details p{font-size:13px}
+  </style>
+<script src="i18n.js?v=20260913-i18n2"></script></head>
+<body>
+<header class="topbar"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">n.</span><span>nozzala <strong>colors</strong></span></a><span class="edition">灯语工作室 / 使用说明</span><label class="language-control"><span class="visually-hidden">语言</span><select id="language-select" data-language-select aria-label="语言"><option value="zh-CN" data-i18n-ignore>简体中文</option><option value="en" data-i18n-ignore>English</option></select></label></header>
+<main class="guide">
+  <a class="back" href="index.html">← 返回灯语工作室</a>
+  <h1>把喜欢的灯语，留在设备里。</h1>
+  <p>在这里，你可以为 Nozzala Colors 设置灯光颜色、亮度与动画。连接键盘后即可开始；需要时可以展开页面底部的“设备信息”查看详情。</p>
+  <div class="notice">使用电脑上的 Chrome 或 Edge 打开本站，即可连接键盘，无需安装额外软件。</div>
+  <section class="panel" id="start">
+    <h2>第一次使用</h2>
+    <ol>
+      <li>用 USB 数据线连接键盘。键盘需要支持灯语设置。</li>
+      <li>返回工作室，点击“连接设备”，在浏览器弹窗中选择你的键盘。成功后会读取当前灯语。</li>
+      <li>默认已开启自定义灯语。选择一种状态，先选常用色；需要更多颜色时展开“自定义颜色”，从扩展色板选择，或拖动滑块微调。</li>
+      <li>分别调整普通状态、选中聊天时的动画与速度。实际亮度也受应用中的灯光设置影响。</li>
+      <li>点击“在设备上试灯”，5 秒后自动恢复当前任务灯光。试灯不会写入存储。</li>
+      <li>满意后点击“保存到设备”，等待页面提示保存成功。关闭网页、拔线重插后，设备仍会使用已保存的灯语。</li>
+    </ol>
+  </section>
+  <section class="panel" id="mode">
+    <h2>高级设置：直接使用应用灯光</h2>
+    <p>默认使用你设置的颜色、亮度和动画。高级用户可展开页面底部的“高级设置”，关闭“自定义灯语”，直接显示应用发送的灯光。两种方式都有亮度保护。</p>
+    <p>切换后点击“保存到设备”才会生效。关闭不会删除自定义设置，之后可以重新开启。“读取已保存”会同时读取开关和灯光设置。</p>
+    <p>旧固件可能不支持切换，页面会提示需要升级。新设备默认开启自定义灯语；已有保存的选择会继续保留。恢复全部默认会重新开启自定义灯语。</p>
+  </section>
+  <section class="panel" id="states">
+    <h2>自定义灯语：五种状态，六个按键</h2>
+    <table><thead><tr><th>状态</th><th>默认颜色</th><th>含义</th></tr></thead><tbody>
+      <tr><td>空闲</td><td>柔白</td><td>没有正在进行的任务</td></tr>
+      <tr><td>工作中</td><td>晴蓝</td><td>ChatGPT API 正在处理任务</td></tr>
+      <tr><td>完成未读</td><td>薄荷绿</td><td>结果已就绪，等待查看</td></tr>
+      <tr><td>等待批准/回复</td><td>明黄</td><td>需要你确认操作或提供信息</td></tr>
+      <tr><td>错误</td><td>正红</td><td>任务遇到了问题</td></tr>
+    </tbody></table>
+    <p>每个按键的灯光会显示对应聊天的状态。例如，处理任务时显示蓝色，需要你确认或回复时显示黄色。你可以分别修改这些颜色。</p>
+    <p>普通状态默认常亮，选中聊天时默认呼吸；下拉列表会标出默认动画。速度直接拖动滑块调整，滑轨上的“默认”标记对应普通状态 0%、选中聊天时 40%。可选动画包括关闭、常亮、跑灯、彩虹、呼吸、渐变和浅呼吸。</p>
+  </section>
+  <section class="panel" id="colors">
+    <h2>颜色与预览</h2>
+    <p>自定义面板提供 36 种常用颜色。你可以用滑块微调，也可以输入色号。不同键帽下的灯光效果可能不同，建议在键盘上试灯后再保存。</p>
+    <p>输入色号（例如 #0062FF）可以精确指定颜色。屏幕预览仅供参考，实际颜色与亮度以键盘上看到的效果为准。</p>
+    <p>动画速度为零时冻结；彩虹使用色轮，不使用固定预设色。滚动编辑区时，状态和预览会跟随；窄屏采用顶部状态条和底部紧凑预览。</p>
+  </section>
+  <section class="panel" id="save">
+    <h2>保存、读取与备份</h2>
+    <p>页面上的修改不会自动保存。点击“保存到设备”后，灯语会保存在键盘中，关闭网页或拔线后仍会保留。</p>
+    <p>“读取已保存”会用键盘中的设置替换页面上的修改。“恢复默认”后，仍需点击保存才会长期生效。你可以在底部“备份与帮助”中导出或导入包含开关状态的设置文件；升级固件前建议先备份。</p>
+    <p>无需注册账号，灯语设置直接保存在你连接的键盘中。</p>
+  </section>
+  <section class="panel" id="troubleshooting">
+    <h2>连接遇到问题</h2>
+    <details><summary>浏览器无法连接键盘</summary><p>请使用桌面 Chrome 或 Edge。Firefox、Safari 和部分内置浏览器不支持。直接打开 HTTPS 站点，不要在第三方网页的嵌入框架里连接设备。</p></details>
+    <details><summary>换了网址后需要重新选择键盘</summary><p>首次在新网址打开页面时，点击“连接设备”，重新选择你的键盘即可。</p></details>
+    <details><summary>设备没有回复</summary><p>检查 USB 数据线，重新插入键盘后再连接。如果仍然没有回复，请确认键盘固件支持灯语设置。此工具仅适用于兼容的 Nozzala Colors 键盘。</p></details>
+    <details><summary>保存失败或连接中途断开</summary><p>页面会显示错误，不会把未确认的操作标成保存成功。重新连接后读取已保存，核对设备状态，再按需要保存草稿。</p></details>
+    <details><summary>网页仍然显示旧内容</summary><p>先导出尚未保存的设置，再按 Ctrl+F5 刷新网页。</p></details>
+  </section>
+  <p>新版固件仍在进行实物验证。本工具并非 OpenAI 官方软件。</p>
+  <a class="back" href="index.html">← 返回灯语工作室</a>
+</main>
+<footer class="site-footer"><span>© 2026 <a href="mailto:Nozzie-Lab@outlook.com">Nozzie Lab</a>. All rights reserved.</span></footer>
+</body>
+</html>

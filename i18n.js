@@ -1,0 +1,342 @@
+(function(root,factory){
+  const api=factory(root);
+  if(typeof module==='object'&&module.exports)module.exports=api;
+  else {root.NozzalaI18n=api;api.start();}
+})(typeof globalThis!=='undefined'?globalThis:this,root=>{
+  'use strict';
+  const phrases={
+  "灯语工作室": "Lighting Studio",
+  "语言": "Language",
+  "Nozzala Colors · 灯语工作室": "Nozzala Colors · Lighting Studio",
+  "使用说明 · Nozzala Colors": "Help · Nozzala Colors",
+  "灯语工作室 / 使用说明": "Lighting Studio / Help",
+  "Nozzala Colors 灯语工作室：自定义 ChatGPT API 状态的颜色、亮度和动画，保存在键盘中。": "Nozzala Colors Lighting Studio: customize status colors, brightness and animations, and save them to your keyboard.",
+  "Nozzala Colors 灯语工作室使用说明：设置五种灯语并保存到设备。": "Nozzala Colors Lighting Studio help: customize five status lights and save them to your keyboard.",
+  "让灯光，说你的语言。": "Make every color your own.",
+  "把 ChatGPT App 的状态，变成你熟悉的颜色与节奏。": "Bring ChatGPT App status to life with your colors and animations.",
+  "从你喜欢的灯语开始": "Start with colors you love",
+  "灯语工作室需要启用 JavaScript。连接设备请使用桌面 Chrome 或 Edge。": "Enable JavaScript to use Lighting Studio. Connect your keyboard using desktop Chrome or Edge.",
+  "可先离线调整。连接已升级固件的设备后，即可保存灯语。": "Try your settings offline. Connect a compatible keyboard to save them.",
+  "选择灯语": "Choose a status light",
+  "选择状态": "Choose a status",
+  "5 种灯语": "5 statuses",
+  "灯语跟随任务状态，自动应用到对应按键。": "Each key's light reflects its chat's status.",
+  "空闲": "Idle",
+  "工作中": "Working",
+  "完成未读": "Unread",
+  "等待批准/回复": "Needs input",
+  "错误": "Error",
+  "没有正在进行的任务": "No task in progress",
+  "正在处理你的任务": "Working on your task",
+  "有新结果待查看": "New results to read",
+  "需要你确认或回复": "Waiting for your input",
+  "任务遇到问题": "Something went wrong",
+  "任务遇到了问题": "Something went wrong",
+  "ChatGPT API 正在处理任务": "ChatGPT is working on your task",
+  "结果已就绪，等待查看": "Your results are ready to read",
+  "需要你批准操作或回复信息": "Waiting for approval or a reply",
+  "需要你确认操作或提供信息": "Waiting for confirmation or more information",
+  "恢复此项默认": "Reset this status",
+  "等待批准与等待回复使用相同下发信号，合并为一项配置。": "Approval requests and replies share this status light.",
+  "选择颜色": "Choose a color",
+  "推荐颜色 · 可在设备上试灯微调": "Suggested colors · Preview on your keyboard to fine-tune",
+  "常用颜色": "Quick colors",
+  "当前颜色": "Current color",
+  "调整颜色": "Edit color",
+  "常用颜色不够？自定义颜色": "More colors and fine-tuning",
+  "更多常见颜色": "More colors",
+  "选一个，再拖动微调": "Pick a color, then fine-tune",
+  "自定义颜色": "Custom color",
+  "实时预览": "Live preview",
+  "色相": "Hue",
+  "选择偏色": "Choose a hue",
+  "饱和度": "Saturation",
+  "柔和 → 鲜艳": "Soft → Vivid",
+  "明暗": "Value",
+  "深色 → 明亮": "Dark → Bright",
+  "精确色号": "Hex color",
+  "应用色号": "Apply color",
+  "也可以直接输入色号，例如 #0062FF。": "You can also enter a hex color, such as #0062FF.",
+  "亮度": "Brightness",
+  "调整这类状态的灯光亮度。实际亮度也受应用中的灯光设置影响。": "Adjust this status light's brightness. Your app's lighting settings also affect the output.",
+  "设置节奏": "Choose an animation",
+  "普通与选中分别设置": "Normal and selected",
+  "普通状态": "Normal",
+  "选中聊天时": "Selected chat",
+  "普通状态动画速度": "Normal animation speed",
+  "选中聊天动画速度": "Selected chat animation speed",
+  "速度": "Speed",
+  "默认": "Default",
+  "（默认）": " (default)",
+  "，默认": ", default",
+  "关闭": "Off",
+  "常亮": "Steady",
+  "呼吸": "Breathing",
+  "浅呼吸": "Gentle pulse",
+  "跑灯": "Chase",
+  "渐变": "Gradient",
+  "彩虹": "Rainbow",
+  "保留默认的动画和速度，也可以在这里自定义。": "Keep the default animations and speeds, or choose your own.",
+  "灯光预览": "Light preview",
+  "先看看，再保存。": "Preview, then save.",
+  "预览当前灯语在六个按键上的表现。": "See how this status light looks across all six keys.",
+  "预览状态": "Preview state",
+  "选中聊天": "Selected",
+  "六键灯光示意图": "Six-key lighting preview",
+  "低亮灯光已增强显示，实际颜色与亮度以板上试灯为准。": "Dim lights are enhanced in this preview. Check your keyboard for the actual color and brightness.",
+  "在设备上试灯 · 5 秒": "Preview on keyboard · 5 sec",
+  "正在试灯 · 5 秒后自动结束": "Previewing · ends in 5 seconds",
+  "结束试灯": "Stop preview",
+  "保存在键盘中": "Saved on your keyboard",
+  "拔线后仍保留，重新连接自动加载。网页无需保持打开。": "Settings stay saved when unplugged. You can close this page after saving.",
+  "尚未连接设备": "No keyboard connected",
+  "默认灯语": "Default lighting",
+  "尚未写入设备": "Not saved to keyboard",
+  "全部恢复默认": "Reset all",
+  "读取已保存": "Load saved",
+  "保存到设备": "Save to keyboard",
+  "备份与帮助": "Backup and help",
+  "导出配置": "Export settings",
+  "导入配置": "Import settings",
+  "使用说明": "Help",
+  "导出一份灯光设置，之后可以导入恢复。": "Export your lighting settings so you can restore them later.",
+  "高级设置": "Advanced settings",
+  "自定义灯语": "Custom status lights",
+  "连接键盘后可更改此高级设置。": "Connect your keyboard to change this advanced setting.",
+  "当前固件只支持自定义灯语，升级后可切换。": "This firmware only supports custom status lights. Update it to enable switching.",
+  "默认开启。关闭后直接使用应用发送的灯光；点击保存后生效。": "Enabled by default. Turn this off to use the app's lights directly, then save to apply.",
+  "高级模式：直接使用应用发送的灯光，自定义设置仍保留。": "Advanced mode: use the app's lights directly. Your custom settings are kept.",
+  "设备信息": "Device information",
+  "连接键盘后可查看设备信息": "Connect your keyboard to view its details",
+  "版本未识别 · 可以正常调整灯光": "Version unavailable · Lighting controls are supported",
+  "键盘 v": "PCB v",
+  "固件 v": "Firmware v",
+  "离线编辑": "Offline",
+  "设备已连接": "Connected",
+  "连接设备": "Connect",
+  "断开": "Disconnect",
+  "设备有尚未保存的临时配置": "The keyboard has temporary, unsaved settings",
+  "已读取键盘保存的灯语": "Loaded saved lighting",
+  "设备正在使用 默认灯语": "The keyboard is using default lighting",
+  "有尚未保存的更改": "Unsaved changes",
+  "点击保存到设备后，开关和灯语一起生效": "Save to apply both the mode and lighting settings",
+  "修改仅保留在当前页面，试灯不会写入存储": "Changes stay on this page until saved. Previewing does not save them.",
+  "颜色与节奏已同步到页面": "Colors and animations are now shown on this page",
+  "已使用自定义颜色，可以在设备上试灯。": "Color applied. You can now preview it on your keyboard.",
+  "已恢复 默认灯语": "Default lighting restored",
+  "点击保存到设备后长期生效": "Save to keep these settings on your keyboard",
+  "已恢复默认灯语并开启自定义，尚未写入设备。": "Default lighting restored and custom status lights enabled. Not yet saved to the keyboard.",
+  "请在桌面 Chrome 或 Edge 中，通过本机启动地址或 HTTPS 打开。": "Open this page in desktop Chrome or Edge using HTTPS or the local server address.",
+  "设备已断开": "Disconnected",
+  "设备已断开，页面中的配置仍保留。": "Keyboard disconnected. Your settings are still on this page.",
+  "已读取设备当前灯语": "Loaded current keyboard lighting",
+  "设备已连接，保留了你的页面草稿。可以试灯或保存。": "Connected. Your unsaved settings were kept. You can preview or save them.",
+  "设备已连接，已读取当前灯语。": "Connected. Current lighting settings have been loaded.",
+  "已断开连接。已保存的灯语会继续在设备上生效。": "Disconnected. Saved lighting will keep working on your keyboard.",
+  "此固件不支持关闭自定义灯语，请先升级固件。": "Update the keyboard firmware before turning off custom status lights.",
+  "未能确认开关状态，请重新保存。": "Could not verify the lighting mode. Please save again.",
+  "未能确认保存结果，请重新保存。": "Could not verify the saved settings. Please save again.",
+  "已保存到设备": "Saved to keyboard",
+  "重新插入设备后也会自动加载": "These settings will load again when the keyboard is plugged in",
+  "自定义灯语已开启并保存，拔线后也会保留。": "Custom status lights are enabled and saved. Settings stay saved when unplugged.",
+  "已保存：直接使用应用发送的灯光。自定义设置仍保留在键盘中。": "Saved: the keyboard now uses the app's lights directly. Your custom settings are kept.",
+  "已读取设备保存的灯语": "Loaded saved keyboard lighting",
+  "已读取 默认灯语": "Loaded default lighting",
+  "已读取键盘保存的灯语。": "Loaded the settings saved on your keyboard.",
+  "设备尚无有效保存，已载入 默认灯语。": "No saved settings were found. Default lighting has been loaded.",
+  "正在设备上试灯，5 秒后回到 ChatGPT API 当前状态。配置尚未写入存储。": "Previewing on your keyboard for 5 seconds, then returning to the app's lights. Settings are not saved yet.",
+  "试灯已结束，恢复 ChatGPT API 当前灯语。": "Preview stopped. The app's status lights have resumed.",
+  "配置文件过大": "The settings file is too large",
+  "不是受支持的灯语备份": "This is not a supported lighting backup",
+  "备份中的灯光开关无效": "The backup contains an invalid lighting mode",
+  "已导入灯语草稿": "Settings imported",
+  "备份已导入页面，尚未写入设备。": "Backup imported to this page. It has not been saved to the keyboard.",
+  "当前浏览器可离线编辑。连接设备请使用桌面 Chrome 或 Edge，直接打开本站 HTTPS 地址；本地运行也可使用 localhost。": "You can edit offline in this browser. To connect a keyboard, use desktop Chrome or Edge with HTTPS or localhost.",
+  "颜色滑块数值超出范围": "The color slider value is out of range",
+  "请输入 6 位颜色，例如 #0062FF": "Enter a six-digit hex color, such as #0062FF",
+  "配置数值超出范围": "A setting is out of range",
+  "不支持的动画配置": "This animation setting is not supported",
+  "配置必须包含五种灯语": "Settings must contain all five status lights",
+  "设备返回的配置长度不正确": "The keyboard returned an invalid settings response",
+  "无效命令": "Invalid command",
+  "配置过长": "The settings payload is too long",
+  "暂时无法读取这台设备的灯语，请确认设备支持此功能": "Unable to read lighting settings. Check that your keyboard supports this feature.",
+  "设备返回无效存储状态": "The keyboard returned an invalid storage status",
+  "设备版本或灯光配置格式暂不支持，请更新网页": "This device or settings format is not supported. Please update the web app.",
+  "固件版本不兼容": "Incompatible firmware version",
+  "设备拒绝了无效配置": "The keyboard rejected an invalid setting",
+  "保存失败。当前灯语仅临时生效，请重新保存。": "Save failed. These settings are only active temporarily. Please save again.",
+  "固件不支持此操作": "This firmware does not support this operation",
+  "设备返回错误": "The keyboard reported an error",
+  "设备未连接": "Keyboard not connected",
+  "请等待上一步完成": "Please wait for the previous operation to finish",
+  "设备没有回复。请重新连接，并确认键盘固件支持灯语设置。": "The keyboard did not respond. Reconnect it and check that its firmware supports lighting settings.",
+  "连接已关闭": "Connection closed",
+  "← 返回灯语工作室": "← Back to Lighting Studio",
+  "把喜欢的灯语，留在设备里。": "Keep your favorite lights on your keyboard.",
+  "在这里，你可以为 Nozzala Colors 设置灯光颜色、亮度与动画。连接键盘后即可开始；需要时可以展开页面底部的“设备信息”查看详情。": "Customize colors, brightness and animations for Nozzala Colors. Connect your keyboard to get started. Expand Device information at the bottom of the page for details.",
+  "使用电脑上的 Chrome 或 Edge 打开本站，即可连接键盘，无需安装额外软件。": "Open this site in desktop Chrome or Edge to connect your keyboard. No extra software is needed.",
+  "第一次使用": "Getting started",
+  "用 USB 数据线连接键盘。键盘需要支持灯语设置。": "Connect the keyboard with a USB data cable. It must support status-light settings.",
+  "返回工作室，点击“连接设备”，在浏览器弹窗中选择你的键盘。成功后会读取当前灯语。": "Return to the studio, click Connect, and choose your keyboard in the browser prompt. Its current lighting settings will then load.",
+  "默认已开启自定义灯语。选择一种状态，先选常用色；需要更多颜色时展开“自定义颜色”，从扩展色板选择，或拖动滑块微调。": "Custom status lights are enabled by default. Choose a status and a quick color. Open More colors and fine-tuning for additional colors and sliders.",
+  "分别调整普通状态、选中聊天时的动画与速度。实际亮度也受应用中的灯光设置影响。": "Set animations and speeds for normal and selected chats separately. The app's lighting settings also affect brightness.",
+  "点击“在设备上试灯”，5 秒后自动恢复当前任务灯光。试灯不会写入存储。": "Click Preview on keyboard for a 5-second preview, then the app's lights resume. Previewing does not save settings.",
+  "满意后点击“保存到设备”，等待页面提示保存成功。关闭网页、拔线重插后，设备仍会使用已保存的灯语。": "When you are happy with the result, click Save to keyboard and wait for confirmation. Saved settings stay on the keyboard after closing the page or unplugging it.",
+  "高级设置：直接使用应用灯光": "Advanced: use the app's lights directly",
+  "默认使用你设置的颜色、亮度和动画。高级用户可展开页面底部的“高级设置”，关闭“自定义灯语”，直接显示应用发送的灯光。两种方式都有亮度保护。": "Your custom colors, brightness and animations are used by default. To use the app's lights directly, open Advanced settings at the bottom and turn off Custom status lights. Both modes retain brightness protection.",
+  "切换后点击“保存到设备”才会生效。关闭不会删除自定义设置，之后可以重新开启。“读取已保存”会同时读取开关和灯光设置。": "Click Save to keyboard to apply a mode change. Turning custom lights off does not delete your settings. Load saved restores both the mode and lighting settings.",
+  "旧固件可能不支持切换，页面会提示需要升级。新设备默认开启自定义灯语；已有保存的选择会继续保留。恢复全部默认会重新开启自定义灯语。": "Older firmware may need an update to support switching. New devices start with custom status lights enabled. Saved choices are kept, and Reset all enables custom lights again.",
+  "自定义灯语：五种状态，六个按键": "Custom lights: five statuses, six keys",
+  "状态": "Status",
+  "默认颜色": "Default color",
+  "含义": "Meaning",
+  "每个按键的灯光会显示对应聊天的状态。例如，处理任务时显示蓝色，需要你确认或回复时显示黄色。你可以分别修改这些颜色。": "Each key's light shows its chat's status. For example, blue means working and yellow means your input is needed. You can customize each color.",
+  "普通状态默认常亮，选中聊天时默认呼吸；下拉列表会标出默认动画。速度直接拖动滑块调整，滑轨上的“默认”标记对应普通状态 0%、选中聊天时 40%。可选动画包括关闭、常亮、跑灯、彩虹、呼吸、渐变和浅呼吸。": "Normal chats use steady light by default; selected chats use breathing. The menus mark these defaults. Drag the speed sliders to adjust them: default marks are at 0% for normal and 40% for selected. Effects include off, steady, chase, rainbow, breathing, gradient and gentle pulse.",
+  "颜色与预览": "Colors and previews",
+  "自定义面板提供 36 种常用颜色。你可以用滑块微调，也可以输入色号。不同键帽下的灯光效果可能不同，建议在键盘上试灯后再保存。": "The expanded palette offers 36 colors. Fine-tune them with sliders or enter a hex color. Keycaps affect how light looks, so preview on your keyboard before saving.",
+  "输入色号（例如 #0062FF）可以精确指定颜色。屏幕预览仅供参考，实际颜色与亮度以键盘上看到的效果为准。": "Enter a hex color such as #0062FF for an exact setting. The screen preview is a guide; check the keyboard for actual color and brightness.",
+  "动画速度为零时冻结；彩虹使用色轮，不使用固定预设色。滚动编辑区时，状态和预览会跟随；窄屏采用顶部状态条和底部紧凑预览。": "A speed of zero freezes animation. Rainbow cycles through colors instead of using the chosen color. Status and preview panels stay in view as you scroll; narrow screens use compact panels.",
+  "保存、读取与备份": "Saving, loading and backups",
+  "页面上的修改不会自动保存。点击“保存到设备”后，灯语会保存在键盘中，关闭网页或拔线后仍会保留。": "Changes are not saved automatically. Click Save to keyboard to keep them on the device, even after closing the page or unplugging it.",
+  "“读取已保存”会用键盘中的设置替换页面上的修改。“恢复默认”后，仍需点击保存才会长期生效。你可以在底部“备份与帮助”中导出或导入包含开关状态的设置文件；升级固件前建议先备份。": "Load saved replaces your page edits with the keyboard's settings. After resetting defaults, save again to keep them. Export or import a backup, including the lighting mode, under Backup and help. Back up your settings before updating firmware.",
+  "无需注册账号，灯语设置直接保存在你连接的键盘中。": "No account is required. Lighting settings are saved directly on your connected keyboard.",
+  "连接遇到问题": "Connection help",
+  "浏览器无法连接键盘": "The browser cannot connect to the keyboard",
+  "请使用桌面 Chrome 或 Edge。Firefox、Safari 和部分内置浏览器不支持。直接打开 HTTPS 站点，不要在第三方网页的嵌入框架里连接设备。": "Use desktop Chrome or Edge. Firefox, Safari and some embedded browsers do not support keyboard connections. Open this HTTPS site directly rather than inside another website.",
+  "换了网址后需要重新选择键盘": "A new website address asks me to choose the keyboard again",
+  "首次在新网址打开页面时，点击“连接设备”，重新选择你的键盘即可。": "The first time you visit a new address, click Connect and choose your keyboard again.",
+  "设备没有回复": "The keyboard did not respond",
+  "检查 USB 数据线，重新插入键盘后再连接。如果仍然没有回复，请确认键盘固件支持灯语设置。此工具仅适用于兼容的 Nozzala Colors 键盘。": "Check your USB data cable, unplug and reconnect the keyboard, then try again. If it still does not respond, check that its firmware supports lighting settings. This tool is for compatible Nozzala Colors keyboards.",
+  "保存失败或连接中途断开": "Saving failed or the connection was interrupted",
+  "页面会显示错误，不会把未确认的操作标成保存成功。重新连接后读取已保存，核对设备状态，再按需要保存草稿。": "The page reports errors and only confirms a save after verification. Reconnect, load the saved settings and check them before saving again.",
+  "网页仍然显示旧内容": "The page still shows old content",
+  "先导出尚未保存的设置，再按 Ctrl+F5 刷新网页。": "Export any unsaved settings, then press Ctrl+F5 to refresh the page.",
+  "新版固件仍在进行实物验证。本工具并非 OpenAI 官方软件。": "The new firmware is still undergoing hardware testing. This is not an official OpenAI product.",
+  "柔白": "Soft white",
+  "晴蓝": "Sky blue",
+  "薄荷绿": "Mint green",
+  "明黄": "Yellow",
+  "正红": "Red",
+  "橙色": "Orange",
+  "珊瑚": "Coral",
+  "玫红": "Rose pink",
+  "紫色": "Purple",
+  "靛蓝": "Indigo",
+  "青色": "Cyan",
+  "暖白": "Warm white",
+  "亮白": "Bright white",
+  "银灰": "Silver",
+  "灰色": "Gray",
+  "炭灰": "Charcoal",
+  "黑色": "Black",
+  "浅粉": "Blush",
+  "粉红": "Pink",
+  "玫瑰": "Rose",
+  "绯红": "Crimson",
+  "酒红": "Burgundy",
+  "桃色": "Peach",
+  "橘橙": "Tangerine",
+  "金色": "Gold",
+  "奶油": "Cream",
+  "淡绿": "Pale green",
+  "青柠": "Lime",
+  "草绿": "Grass green",
+  "翠绿": "Emerald",
+  "薄荷": "Mint",
+  "森林": "Forest",
+  "浅青": "Pale cyan",
+  "绿松石": "Turquoise",
+  "天蓝": "Light blue",
+  "海军蓝": "Navy",
+  "薰衣草": "Lavender",
+  "丁香": "Lilac",
+  "兰紫": "Orchid",
+  "紫罗兰": "Violet",
+  "洋红": "Magenta"
+};
+  const supported=['zh-CN','en'], storageKey='nozzala.ui.language';
+  function detectLanguage(preferred) {
+    const raw=Array.isArray(preferred)?preferred[0]:preferred;
+    const parts=String(raw||'').replace(/_/g,'-').toLowerCase().split('-');
+    if(parts[0]!=='zh'||parts.includes('hant'))return 'en';
+    if(/^[a-z]{4}$/.test(parts[1]||''))return parts[1]==='hans'?'zh-CN':'en';
+    return parts.includes('cn')||parts.includes('sg')?'zh-CN':'en';
+  }
+  function chooseLanguage(preferred,saved,requested) {
+    return supported.includes(requested)?requested:supported.includes(saved)?saved:detectLanguage(preferred);
+  }
+  const escape=value=>value.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  const pattern=new RegExp(Object.keys(phrases).sort((a,b)=>b.length-a.length).map(escape).join('|'),'g');
+  function translate(value,locale=language) {
+    const text=String(value);
+    if(locale==='zh-CN')return text;
+    return Object.prototype.hasOwnProperty.call(phrases,text)?phrases[text]:text.replace(pattern,key=>phrases[key]);
+  }
+  let language='en',observer,started=false;
+  const textSources=new WeakMap(),attributeSources=new WeakMap();
+  const attributes=['aria-label','aria-valuetext','title','placeholder','content'];
+  function translatedRecord(previous,current) {
+    const source=previous&&current===previous.output?previous.source:current;
+    return {source,output:translate(source)};
+  }
+  function ignored(element) {return !!element?.closest('script,style,noscript,[data-i18n-ignore]');}
+  function apply() {
+    const doc=root.document;if(!doc)return;
+    observer?.disconnect();
+    try {
+      doc.documentElement.lang=language;
+      const walker=doc.createTreeWalker(doc.documentElement,4);
+      let node;
+      while((node=walker.nextNode())) {
+        if(ignored(node.parentElement)||!node.nodeValue.trim())continue;
+        const record=translatedRecord(textSources.get(node),node.nodeValue);
+        textSources.set(node,record);
+        if(node.nodeValue!==record.output)node.nodeValue=record.output;
+      }
+      doc.querySelectorAll('[aria-label],[aria-valuetext],[title],[placeholder],meta[name="description"]').forEach(element=>{
+        if(ignored(element))return;
+        const records=attributeSources.get(element)||{};
+        for(const name of attributes) {
+          if(!element.hasAttribute(name))continue;
+          const record=translatedRecord(records[name],element.getAttribute(name));records[name]=record;
+          if(element.getAttribute(name)!==record.output)element.setAttribute(name,record.output);
+        }
+        attributeSources.set(element,records);
+      });
+      doc.querySelectorAll('[data-language-select]').forEach(select=>select.value=language);
+      // Carry the choice between the studio and help even if storage is blocked.
+      doc.querySelectorAll('a[href]').forEach(link=>{
+        const href=link.getAttribute('href');
+        if(!/^(?:\.\/|index\.html|help\.html)(?:[?#]|$)/.test(href))return;
+        const url=new URL(href,root.location.href);url.searchParams.set('lang',language);
+        const name=href.split(/[?#]/)[0];link.setAttribute('href',name+'?'+url.searchParams+url.hash);
+      });
+    } finally {
+      observer?.observe(doc.documentElement,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:attributes});
+    }
+  }
+  function setLanguage(value) {
+    if(!supported.includes(value))return;
+    language=value;
+    try {root.localStorage.setItem(storageKey,value);} catch(_){}
+    try {const url=new URL(root.location.href);url.searchParams.set('lang',value);root.history.replaceState(root.history.state,'',url);} catch(_){}
+    apply();
+  }
+  function start() {
+    if(started||!root.document)return;started=true;
+    let saved,requested;
+    try {saved=root.localStorage.getItem(storageKey);} catch(_){}
+    try {requested=new URL(root.location.href).searchParams.get('lang');} catch(_){}
+    language=chooseLanguage(root.navigator?.languages?.length?root.navigator.languages:root.navigator?.language,saved,requested);
+    root.document.documentElement.lang=language;
+    const boot=()=>{
+      observer=new root.MutationObserver(apply);
+      root.document.querySelectorAll('[data-language-select]').forEach(select=>select.addEventListener('change',()=>setLanguage(select.value)));
+      apply();
+    };
+    if(root.document.readyState==='loading')root.document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+    root.addEventListener('storage',event=>{if(event.key===storageKey&&supported.includes(event.newValue)){language=event.newValue;apply();}});
+  }
+  return {phrases,detectLanguage,chooseLanguage,translate,start,setLanguage,apply,getLanguage:()=>language};
+});
