@@ -11,9 +11,10 @@
     ".nojekyll": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "app.js": "a4093793d43d786e60c6a22adbeb05be613b54f8158ab8ba925fe4665f7f0c67",
     "color-picker.css": "36bc66ca7d7ed632afe6bf1f72c2f384527891879de42e8e69bbd0e1364b5819",
-    "help.html": "b909e127d3a76b271dabcbe9038e7dcf8f52e74f00c3d3780a74a4d298da10ed",
+    "favicon.svg": "63f159d4a94505ca4fd6995cd3b4962543b7afcc35530f25ed8bb88f7ac0a759",
+    "help.html": "c623b3aa80c6f9283b1c92d2b2efbe6f8e495b622c13c54173894e026bdc6eeb",
     "i18n.js": "c1366faf08397617dbf4ddbd6f7ae528bdd1002905d2a42a0f7d67e4aafde63a",
-    "index.html": "1eff8d5f0cd7ccf057e1cd4c6922fc90b77b86f9aa5fb1198c02d5ab4c9f76ef",
+    "index.html": "3dc3ee508dcc04da733e508cba73f6d81e863e55c6485bef482967243790a348",
     "model.js": "310839a7ac225ff07e847621e544faa343bc4c27fb6dbd88175ace6fa17999cf",
     "protocol.js": "edf0ab26c01993e5a359f17e5ea67c1ba29beec3bad4d6accc7ff7ee028e2e4e",
     "styles.css": "14468038ae11e3685237f7ac81e71fb47a80aa714e89576804cfa54ea60a657a"
