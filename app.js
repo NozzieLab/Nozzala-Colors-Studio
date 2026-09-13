@@ -199,8 +199,8 @@
     loadConfig(r.config,r.flags,'已保存到设备');$('draft-detail').textContent='重新插入设备后也会自动加载';notice(mode?'自定义灯语已开启并保存，拔线后也会保留。':'已保存：直接使用应用发送的灯光。自定义设置仍保留在键盘中。');
   });
   $('load').onclick=()=>work(async()=>{let r=await connection.call(4);if(connection.supportsMode)r=await connection.call(9);customEnabled=r.enabled??true;loadConfig(r.config,r.flags,r.flags&1?'已读取设备保存的灯语':'已读取 默认灯语');notice(r.flags&1?'已读取键盘保存的灯语。':'设备尚无有效保存，已载入 默认灯语。');});
-  $('try-light').onclick=()=>work(async()=>{await connection.call(6,[...M.entryBytes(config[index]),Number(selected)]);previewUntil=performance.now()+5000;$('try-light').textContent='正在试灯 · 5 秒后自动结束';notice('正在设备上试灯，5 秒后回到 ChatGPT API 当前状态。配置尚未写入存储。');});
-  $('stop-preview').onclick=()=>work(async()=>{await connection.call(7);previewUntil=0;$('try-light').textContent='在设备上试灯 · 5 秒';notice('试灯已结束，恢复 ChatGPT API 当前灯语。');});
+  $('try-light').onclick=()=>work(async()=>{await connection.call(6,[...M.entryBytes(config[index]),Number(selected)]);previewUntil=performance.now()+5000;$('try-light').textContent='正在试灯 · 5 秒后自动结束';notice('正在设备上试灯，5 秒后回到 ChatGPT App 当前状态。配置尚未写入存储。');});
+  $('stop-preview').onclick=()=>work(async()=>{await connection.call(7);previewUntil=0;$('try-light').textContent='在设备上试灯 · 5 秒';notice('试灯已结束，恢复 ChatGPT App 当前灯语。');});
   $('export').onclick=()=>{
     const blob=new Blob([JSON.stringify({format:'nozzala-codex-customized',version:2,customEnabled,states:config},null,2)+'\n'],{type:'application/json'});
     const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='nozzala-colors-lights.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);

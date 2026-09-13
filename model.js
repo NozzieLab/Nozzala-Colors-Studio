@@ -6,7 +6,7 @@
   'use strict';
   const states = [
     {name:'空闲', en:'IDLE', note:'没有正在进行的任务', color:'#0D0D0D'},
-    {name:'工作中', en:'WORKING', note:'ChatGPT API 正在处理任务', color:'#0062FF'},
+    {name:'工作中', en:'WORKING', note:'ChatGPT App 正在处理任务', color:'#0062FF'},
     {name:'完成未读', en:'UNREAD', note:'结果已就绪，等待查看', color:'#00FF7B'},
     {name:'等待批准/回复', en:'NEEDS INPUT', note:'需要你批准操作或回复信息', color:'#FFFF00'},
     {name:'错误', en:'ERROR', note:'任务遇到了问题', color:'#FF0000'}
