@@ -2,6 +2,8 @@
   'use strict';
   const M=window.NozzalaModel,H=window.NozzalaHid,$=id=>document.getElementById(id);
   let config=M.defaults(), index=0, selected=false, edited=false, connection=null, busy=false, previewUntil=0;
+  let singleScope=false,targetKey=0,testKey=null,testTimer=null;
+  const keyChecks=Array.from({length:6},()=>({pressed:false,down:false,passed:false}));
   let draggingColor=false, customEnabled=true, modeEdited=false;
   const presetPalette=M.colors.concat(M.moreColors);
   const swatchColor=color=>{
@@ -20,21 +22,25 @@
   function controls() {
     const online=!!connection&&!connection.closed;
     $('custom-enabled').checked=customEnabled;
-    $('custom-enabled').disabled=busy||!online||!connection.supportsMode;
+    $('custom-enabled').disabled=busy||testKey!==null||!online||!connection.supportsMode;
     $('lighting-workspace').hidden=!customEnabled;
     $('mode-description').textContent=!online?'连接键盘后可更改此高级设置。':customEnabled?'默认开启。关闭后直接使用应用发送的灯光；点击保存后生效。':'高级模式：直接使用应用发送的灯光，自定义设置仍保留。';
     $('mode-compatibility').hidden=!(online&&!connection.supportsMode);
     $('connect').disabled=busy||online; $('connect').hidden=online;
     $('disconnect').hidden=!online;$('disconnect').disabled=busy;
-    for(const id of ['save','load','stop-preview']) $(id).disabled=busy||!online;
-    $('try-light').disabled=busy||!online||!customEnabled;
+    for(const id of ['save','load','stop-preview','lights-off']) $(id).disabled=busy||!online;
+    for(const id of ['save','load'])$(id).disabled=busy||!online||testKey!==null;
+    $('try-light').disabled=busy||!online||!customEnabled||testKey!==null;
+    for(const id of ['scope-all','scope-one'])$(id).disabled=busy||testKey!==null;
+    $('reset-key-test').disabled=busy;
+    renderKeyChecks();
     const identity=online?connection.identity:null;
     $('firmware-version').textContent=online?(identity?`键盘 v${identity.pcbRevision} · 固件 v${identity.firmwareVersion}`:'版本未识别 · 可以正常调整灯光'):'连接键盘后可查看设备信息';
     $('connection-state').textContent=online?'设备已连接':'离线编辑';$('connection-state').classList.toggle('online',online);
-    for(const id of ['reset-all','reset-one','import']) $(id).disabled=busy;
+    for(const id of ['reset-all','reset-one','import']) $(id).disabled=busy||testKey!==null;
     // Keep the exact saved snapshot stable while a device operation is in flight.
-    document.querySelectorAll('.editor input,.editor select,.editor button').forEach(e=>e.disabled=busy);
-    if(!busy) updateSpeed();
+    document.querySelectorAll('.editor input,.editor select,.editor button').forEach(e=>e.disabled=busy||testKey!==null);
+    if(!busy&&testKey===null) updateSpeed();
   }
   $('custom-enabled').onchange=()=>{
     customEnabled=$('custom-enabled').checked;modeEdited=true;edited=true;
@@ -133,7 +139,7 @@
     $(id).addEventListener('input',()=>changed({[key]:Number($(id).value),followSpeed:config[index].followSpeed&~bit}));
   for(const [id,key] of [['effect','effect'],['selected-effect','selectedEffect']]) {
     const defaultEffect=key==='effect'?1:4;
-    M.effects.filter(([value])=>value!==255).forEach(([value,name])=>{const o=document.createElement('option');o.value=value;o.textContent=name+(value===defaultEffect?'（默认）':'');$(id).append(o);});
+    M.effects.filter(([value])=>value!==255).forEach(([value,name])=>{const o=document.createElement('option');o.value=value;o.textContent=name+([2,5].includes(value)?'（多灯）':'')+(value===defaultEffect?'（默认）':'');$(id).append(o);});
     $(id).onchange=()=>{
       const effect=Number($(id).value),patch={[key]:effect===defaultEffect?255:effect};
       // Give an explicitly chosen animation a moving, useful initial speed.
@@ -155,8 +161,19 @@
   $('reset-all').onclick=()=>{customEnabled=true;modeEdited=true;config=M.defaults();edited=true;renderStates();syncEditor();$('draft-state').textContent='已恢复 默认灯语';$('draft-detail').textContent='点击保存到设备后长期生效';notice('已恢复默认灯语并开启自定义，尚未写入设备。');controls();};
   function previewMode(value){selected=value;$('normal-preview').setAttribute('aria-pressed',String(!value));$('selected-preview').setAttribute('aria-pressed',String(value));}
   $('normal-preview').onclick=()=>previewMode(false);$('selected-preview').onclick=()=>previewMode(true);
+  function renderKeyChecks(){
+    if(!$('key-test-board').children.length)return;
+    [...$('key-test-board').children].forEach((tile,i)=>{const k=keyChecks[i];tile.classList.toggle('pressed',k.pressed);tile.classList.toggle('passed',k.passed);tile.querySelector('small').textContent=k.pressed?'已按下':k.passed?'通过':'等待按键';});
+    $('key-test-status').textContent=!connection?'连接键盘后开始检测':keyChecks.every(k=>k.passed)?'六个按键均已收到按下和松开消息':'请逐个按下并松开六个按键';
+  }
+  function resetKeyChecks(){keyChecks.forEach(k=>Object.assign(k,{pressed:false,down:false,passed:false}));renderKeyChecks();}
+  function onKey({key,pressed}){const k=keyChecks[key];k.pressed=pressed;if(pressed)k.down=true;else if(k.down){k.passed=true;k.down=false;}renderKeyChecks();}
+  $('reset-key-test').onclick=resetKeyChecks;
+  for(let i=0;i<6;i++){const tile=document.createElement('div');const label=document.createElement('strong');label.textContent=String(i+1).padStart(2,'0');tile.append(label,document.createElement('small'));$('key-test-board').append(tile);}
+  function scope(value){singleScope=value;$('scope-all').setAttribute('aria-pressed',String(!value));$('scope-one').setAttribute('aria-pressed',String(value));$('scope-note').textContent=value?'点击灯位选择。单灯测试会关闭其他灯，5 秒后熄灭；等待 ChatGPT App 更新灯光。':'全部灯试亮 5 秒，然后恢复原灯光。';document.querySelectorAll('#board .key').forEach((k,i)=>k.classList.toggle('target',value&&targetKey===i));}
+  $('scope-all').onclick=()=>scope(false);$('scope-one').onclick=()=>scope(true);
   for(let i=0;i<6;i++){
-    const k=document.createElement('div');k.className='key';k.textContent=String(i+1).padStart(2,'0');
+    const k=document.createElement('div');k.className='key';k.textContent=String(i+1).padStart(2,'0');k.tabIndex=0;k.setAttribute('role','button');k.setAttribute('aria-label',String(i+1));const choose=()=>{if(busy||testKey!==null)return;targetKey=i;scope(true);};k.onclick=choose;k.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();choose();}};
     const well=document.createElement('span');well.className='key-light-well';well.setAttribute('aria-hidden','true');
     const light=document.createElement('i');light.className='key-light';well.append(light);k.append(well);$('board').append(k);
   }
@@ -164,11 +181,13 @@
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
   function animate(time){
     const entry=config[index],effect=selected?entry.selectedEffect:entry.effect;
+    const advice=[2,5].includes(effect)?'跑灯和渐变适合多个灯。单灯会间歇熄灭或跳变，建议使用常亮、呼吸或浅呼吸。':'';
+    if($('effect-advice').dataset.effect!==String(effect)){$('effect-advice').dataset.effect=String(effect);$('effect-advice').textContent=advice;}
     const preset=effect!==3?presetPalette.find(p=>p[1]===entry.color):null;
     const visual=preset?parseInt(preset[2].slice(1),16):null;
     const visualRgb=visual===null?null:[visual>>16,(visual>>8)&255,visual&255];
     if(!document.hidden) lights.forEach((light,i)=>{
-      const rgb=M.render(config[index],selected,reduced.matches?320:time,i),peak=Math.max(...rgb);
+      const rgb=singleScope&&i!==targetKey?[0,0,0]:M.render(config[index],selected,reduced.matches?320:time,i),peak=Math.max(...rgb);
       const screen=visualRgb||rgb,screenPeak=Math.max(...screen);
       light.style.setProperty('--light',`rgb(${screen.map(c=>screenPeak?Math.round(c*255/screenPeak):0).join(',')})`);
       // Display transfer only: make low-current light visible on a screen.
@@ -181,14 +200,15 @@
   $('connect').onclick=()=>work(async()=>{
     if(!navigator.hid||!window.isSecureContext) throw new Error('请在桌面 Chrome 或 Edge 中，通过本机启动地址或 HTTPS 打开。');
     const devices=await navigator.hid.requestDevice({filters:[H.filter]});if(!devices.length)return;
-    const candidate=new H.Connection(devices[0],()=>{connection=null;previewUntil=0;$('storage-state').textContent='设备已断开';notice('设备已断开，页面中的配置仍保留。');controls();});
+    const candidate=new H.Connection(devices[0],()=>{connection=null;previewUntil=0;clearTimeout(testTimer);testKey=null;resetKeyChecks();$('storage-state').textContent='设备已断开';notice('设备已断开，页面中的配置仍保留。');controls();},onKey);
+    resetKeyChecks();
     try{const r=await candidate.open();connection=candidate;
       if(!modeEdited||!candidate.supportsMode)customEnabled=r.enabled;
       if(!edited)loadConfig(r.config,r.flags,'已读取设备当前灯语');else status(r.flags);
       notice(edited?'设备已连接，保留了你的页面草稿。可以试灯或保存。':'设备已连接，已读取当前灯语。');
     }catch(e){await candidate.close().catch(()=>{});throw e;}
   });
-  $('disconnect').onclick=()=>work(async()=>{await connection.close();connection=null;previewUntil=0;$('storage-state').textContent='尚未连接设备';notice('已断开连接。已保存的灯语会继续在设备上生效。');});
+  $('disconnect').onclick=()=>work(async()=>{if(testKey!==null)await endSingle();await connection.close();connection=null;previewUntil=0;clearTimeout(testTimer);testKey=null;resetKeyChecks();$('storage-state').textContent='尚未连接设备';notice('已断开连接。已保存的灯语会继续在设备上生效。');});
   $('save').onclick=()=>work(async()=>{
     const snapshot=M.encode(config),mode=customEnabled;
     if(!connection.supportsMode&&!mode)throw new Error('此固件不支持关闭自定义灯语，请先升级固件。');
@@ -199,8 +219,27 @@
     loadConfig(r.config,r.flags,'已保存到设备');$('draft-detail').textContent='重新插入设备后也会自动加载';notice(mode?'自定义灯语已开启并保存，拔线后也会保留。':'已保存：直接使用应用发送的灯光。自定义设置仍保留在键盘中。');
   });
   $('load').onclick=()=>work(async()=>{let r=await connection.call(4);if(connection.supportsMode)r=await connection.call(9);customEnabled=r.enabled??true;loadConfig(r.config,r.flags,r.flags&1?'已读取设备保存的灯语':'已读取 默认灯语');notice(r.flags&1?'已读取键盘保存的灯语。':'设备尚无有效保存，已载入 默认灯语。');});
-  $('try-light').onclick=()=>work(async()=>{await connection.call(6,[...M.entryBytes(config[index]),Number(selected)]);previewUntil=performance.now()+5000;$('try-light').textContent='正在试灯 · 5 秒后自动结束';notice('正在设备上试灯，5 秒后回到 ChatGPT App 当前状态。配置尚未写入存储。');});
-  $('stop-preview').onclick=()=>work(async()=>{await connection.call(7);previewUntil=0;$('try-light').textContent='在设备上试灯 · 5 秒';notice('试灯已结束，恢复 ChatGPT App 当前灯语。');});
+  async function endSingle(){
+    clearTimeout(testTimer);
+    if(testKey!==null){const key=testKey;await connection.clearTestLight(key);testKey=null;}
+    previewUntil=0;$('try-light').textContent='在设备上试灯 · 5 秒';
+    notice('测试灯已熄灭。ChatGPT App 再次更新时会显示当前状态。');
+  }
+  $('try-light').onclick=()=>work(async()=>{
+    if(singleScope){
+      testKey=targetKey;
+      try{await connection.singleLight(testKey,config[index],selected);}
+      catch(error){try{await endSingle();}catch{}throw error;}
+      testTimer=setTimeout(()=>work(endSingle),5000);
+      notice('单灯测试中，其他灯已关闭。请保持页面打开，5 秒后熄灭测试灯。');
+    }else{
+      await connection.call(6,[...M.entryBytes(config[index]),Number(selected)]);
+      notice('正在设备上试灯，5 秒后回到 ChatGPT App 当前状态。配置尚未写入存储。');
+    }
+    previewUntil=performance.now()+5000;$('try-light').textContent='正在试灯 · 5 秒后自动结束';
+  });
+  $('stop-preview').onclick=()=>work(async()=>{if(testKey!==null){await endSingle();return;}await connection.call(7);previewUntil=0;$('try-light').textContent='在设备上试灯 · 5 秒';notice('试灯已结束，恢复 ChatGPT App 当前灯语。');});
+  $('lights-off').onclick=()=>work(async()=>{clearTimeout(testTimer);await connection.lightsOff();testKey=null;previewUntil=0;$('try-light').textContent='在设备上试灯 · 5 秒';notice('所有灯已熄灭。在 ChatGPT App 中切换聊天或触发状态更新，即可恢复灯光。');});
   $('export').onclick=()=>{
     const blob=new Blob([JSON.stringify({format:'nozzala-codex-customized',version:2,customEnabled,states:config},null,2)+'\n'],{type:'application/json'});
     const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='nozzala-colors-lights.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
@@ -213,7 +252,7 @@
     if(connection&&!connection.supportsMode&&data.version===2&&!data.customEnabled)throw new Error('此固件不支持关闭自定义灯语，请先升级固件。');
     const imported=M.decode(M.encode(data.states));customEnabled=data.version===1?true:data.customEnabled;loadConfig(imported,undefined,'已导入灯语草稿');modeEdited=true;edited=true;$('draft-detail').textContent='点击保存到设备后长期生效';notice('备份已导入页面，尚未写入设备。');
   });
-  window.addEventListener('beforeunload',event=>{if(edited){event.preventDefault();event.returnValue='';}});
+  window.addEventListener('beforeunload',event=>{if(edited||testKey!==null){event.preventDefault();event.returnValue='';}});
   palette();renderStates();syncEditor();controls();requestAnimationFrame(animate);
   if(!navigator.hid||!window.isSecureContext) notice('当前浏览器可离线编辑。连接设备请使用桌面 Chrome 或 Edge，直接打开本站 HTTPS 地址；本地运行也可使用 localhost。');
 })();
