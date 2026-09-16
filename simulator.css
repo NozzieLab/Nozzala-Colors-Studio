@@ -14,15 +14,8 @@
 .simulator .key-light-well{width:30px;height:12px;bottom:10px}
 .simulator .key.target{outline:2px solid #65834f;outline-offset:3px}
 .simulator .key:focus-visible{outline:3px solid #526e41;outline-offset:3px}
-.simulator .key.checked::after{content:"✓";position:absolute;right:6px;top:5px;color:#6e9156;font-size:10px}
-.simulator .key.checked .key-state{color:#6d885b}
 .simulator .key.hardware-down{transform:translateY(3px);box-shadow:0 1px 0 #94a181;background:#d1dfc1;border-color:#8ca777}
 .simulator .key.hardware-down .key-number,.simulator .key.hardware-down .key-state{color:#38532a}
-.key-check-summary{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 0 0;font-size:11px;color:#78856b}
-.key-check-summary>div{display:flex;align-items:center;gap:8px}
-.key-check-summary output{font-size:11px;font-variant-numeric:tabular-nums;color:#4f6741;background:#edf2e7;border-radius:5px;padding:3px 6px}
-.key-check-summary button{font-size:10px;padding:4px 0}
-.key-test-status{margin:6px 0 0;color:#8d9685;font-size:10px;line-height:1.7;min-height:17px}
 .simulator-lighting{border-top:1px solid #e6eade;padding-top:17px;margin-top:17px}
 .simulator-control{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:10px}
 .simulator-control>span{font-size:11px;color:#7b876f;flex-shrink:0}

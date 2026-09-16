@@ -3,7 +3,7 @@
   const M=window.NozzalaModel,H=window.NozzalaHid,$=id=>document.getElementById(id);
   let config=M.defaults(), index=0, selected=false, edited=false, connection=null, busy=false, previewUntil=0;
   let singleScope=false,targetKey=0,testKey=null,testTimer=null;
-  const keyChecks=Array.from({length:6},()=>({pressed:false,down:false,passed:false}));
+  const keyPressed=Array(6).fill(false);
   let draggingColor=false, customEnabled=true, modeEdited=false;
   const presetPalette=M.colors.concat(M.moreColors);
   const swatchColor=color=>{
@@ -32,11 +32,10 @@
     for(const id of ['save','load'])$(id).disabled=busy||!online||testKey!==null;
     $('try-light').disabled=busy||!online||!customEnabled||testKey!==null;
     for(const id of ['scope-all','scope-one'])$(id).disabled=busy||testKey!==null;
-    $('reset-key-test').disabled=busy||!keyChecks.some(k=>k.down||k.passed);
     $('simulator-connection').textContent=online?'已连接':'离线预览';
     $('simulator-connection').classList.toggle('online',online);
     syncTestButton();
-    renderKeyChecks();
+    renderKeyStates();
     const identity=online?connection.identity:null;
     $('firmware-version').textContent=online?(identity?`键盘 v${identity.pcbRevision} · 固件 v${identity.firmwareVersion}`:'版本未识别 · 可以正常调整灯光'):'连接键盘后可查看设备信息';
     $('connection-state').textContent=online?'设备已连接':'离线编辑';$('connection-state').classList.toggle('online',online);
@@ -164,21 +163,14 @@
   $('reset-all').onclick=()=>{customEnabled=true;modeEdited=true;config=M.defaults();edited=true;renderStates();syncEditor();$('draft-state').textContent='已恢复 默认灯语';$('draft-detail').textContent='点击保存到设备后长期生效';notice('已恢复默认灯语并开启自定义，尚未写入设备。');controls();};
   function previewMode(value){selected=value;$('normal-preview').setAttribute('aria-pressed',String(!value));$('selected-preview').setAttribute('aria-pressed',String(value));}
   $('normal-preview').onclick=()=>previewMode(false);$('selected-preview').onclick=()=>previewMode(true);
-  function renderKeyChecks(){
-    const online=!!connection&&!connection.closed;
+  function renderKeyStates(){
     [...$('board').children].forEach((tile,i)=>{
-      const k=keyChecks[i];
-      tile.classList.toggle('hardware-down',k.pressed);tile.classList.toggle('checked',k.passed);
-      tile.querySelector('.key-state').textContent=k.pressed?'按下':k.passed?'已检测':online?'待检测':'未连接';
+      tile.classList.toggle('hardware-down',keyPressed[i]);
+      tile.querySelector('.key-state').textContent=keyPressed[i]?'按下':'未按下';
     });
-    const count=keyChecks.filter(k=>k.passed).length;
-    $('key-test-progress').textContent=`${count} / 6`;
-    $('key-test-status').textContent=!online?'连接后，逐个按下并松开实体键。':count===6?'六个按键均已通过检测。':'按下并松开实体键，对应键帽会高亮。';
-    $('reset-key-test').disabled=busy||!keyChecks.some(k=>k.down||k.passed);
   }
-  function resetKeyChecks(){keyChecks.forEach(k=>Object.assign(k,{pressed:false,down:false,passed:false}));renderKeyChecks();}
-  function onKey({key,pressed}){const k=keyChecks[key];k.pressed=pressed;if(pressed)k.down=true;else if(k.down){k.passed=true;k.down=false;}renderKeyChecks();}
-  $('reset-key-test').onclick=resetKeyChecks;
+  function resetKeyStates(){keyPressed.fill(false);renderKeyStates();}
+  function onKey({key,pressed}){keyPressed[key]=pressed;renderKeyStates();}
   function syncTestButton(){
     const testing=previewUntil>0||testKey!==null;
     $('try-light').textContent=testing?'正在试灯…':'试灯 · 5 秒';
@@ -224,15 +216,15 @@
   $('connect').onclick=()=>work(async()=>{
     if(!navigator.hid||!window.isSecureContext) throw new Error('请在桌面 Chrome 或 Edge 中，通过本机启动地址或 HTTPS 打开。');
     const devices=await navigator.hid.requestDevice({filters:[H.filter]});if(!devices.length)return;
-    const candidate=new H.Connection(devices[0],()=>{connection=null;previewUntil=0;clearTimeout(testTimer);testKey=null;resetKeyChecks();$('storage-state').textContent='设备已断开';notice('设备已断开，页面中的配置仍保留。');controls();},onKey);
-    resetKeyChecks();
+    const candidate=new H.Connection(devices[0],()=>{connection=null;previewUntil=0;clearTimeout(testTimer);testKey=null;resetKeyStates();$('storage-state').textContent='设备已断开';notice('设备已断开，页面中的配置仍保留。');controls();},onKey);
+    resetKeyStates();
     try{const r=await candidate.open();connection=candidate;
       if(!modeEdited||!candidate.supportsMode)customEnabled=r.enabled;
       if(!edited)loadConfig(r.config,r.flags,'已读取设备当前灯语');else status(r.flags);
       notice(edited?'设备已连接，保留了你的页面草稿。可以试灯或保存。':'设备已连接，已读取当前灯语。');
     }catch(e){await candidate.close().catch(()=>{});throw e;}
   });
-  $('disconnect').onclick=()=>work(async()=>{if(testKey!==null)await endSingle();await connection.close();connection=null;previewUntil=0;clearTimeout(testTimer);testKey=null;resetKeyChecks();$('storage-state').textContent='尚未连接设备';notice('已断开连接。已保存的灯语会继续在设备上生效。');});
+  $('disconnect').onclick=()=>work(async()=>{if(testKey!==null)await endSingle();await connection.close();connection=null;previewUntil=0;clearTimeout(testTimer);testKey=null;resetKeyStates();$('storage-state').textContent='尚未连接设备';notice('已断开连接。已保存的灯语会继续在设备上生效。');});
   $('save').onclick=()=>work(async()=>{
     const snapshot=M.encode(config),mode=customEnabled;
     if(!connection.supportsMode&&!mode)throw new Error('此固件不支持关闭自定义灯语，请先升级固件。');

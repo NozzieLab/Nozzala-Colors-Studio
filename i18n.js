@@ -5,6 +5,8 @@
 })(typeof globalThis!=='undefined'?globalThis:this,root=>{
   'use strict';
   const phrases={
+  "未按下": "Not pressed",
+  "键帽实时显示实体键的按下与松开。按键仍会执行 ChatGPT App 中的原有操作。": "Keycaps show physical key presses and releases live. Keys still perform their usual actions in ChatGPT App.",
   "你的键盘": "Your keyboard",
   "离线预览": "Offline preview",
   "已连接": "Connected",
