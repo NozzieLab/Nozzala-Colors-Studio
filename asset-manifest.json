@@ -9,14 +9,15 @@
   ],
   "files": {
     ".nojekyll": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "app.js": "c784c41d6b0d3092167dc4bb6cfc21cd08b6a8dc39a6d853fc0af160637ad87b",
+    "app.js": "51aaa6013dfafb000ea76e312d1e73f7904dbca18f01932e7e8660bbcc2f8db5",
     "color-picker.css": "36bc66ca7d7ed632afe6bf1f72c2f384527891879de42e8e69bbd0e1364b5819",
     "favicon.svg": "63f159d4a94505ca4fd6995cd3b4962543b7afcc35530f25ed8bb88f7ac0a759",
-    "help.html": "c45107772c11339cdd8284e932bce45eb2f78c0fd09badf3fcbc7057e27d254f",
-    "i18n.js": "ea395e5b9700382095bc2a0382fb5b45aa2917152e1ee7b262d55472528772e4",
-    "index.html": "7b66ab50e03cfa4946a0f88431a4666d7a92e89af0e9de35cf3c2f1320b1f5da",
+    "help.html": "c4ef8a12cd89b957d1737dbbe80761af9e9282c12c90c2d3f066273c376dc528",
+    "i18n.js": "a331e040a043e0e7d9c47c848939bb0ce08acec8beb148406143f77bc7c224b0",
+    "index.html": "977153af0af65f96ba8ef3a308f76d68dd3f9e5efe5c71f288fd6f31cf3bcb32",
     "model.js": "50bb4be3beb27b4003d277e973e33575ad2250cd62544bee76345c1b68138bc6",
     "protocol.js": "d34683c751628e9625929a63d1369d3c1b6cdf565bbbbda415a59f1b70ac2259",
-    "styles.css": "0f9c5ca984f645cc86c0c4687afe9ff366516c4e59ddd652fe4fe9c8ec98ee67"
+    "simulator.css": "c9f319a6bbfc1cde686cf9b3fc4e54a5d8f6ff72fe12291d349f054b96c6cdcd",
+    "styles.css": "14468038ae11e3685237f7ac81e71fb47a80aa714e89576804cfa54ea60a657a"
   }
 }

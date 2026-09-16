@@ -1,0 +1,49 @@
+/* One keyboard surface for light selection, animation and physical key feedback. */
+.preview-column{position:sticky;top:16px;bottom:auto;max-height:none;overflow:visible;display:block;filter:none;z-index:auto}
+.simulator{padding:22px;text-align:left}
+.simulator-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.simulator-heading h2{margin:0;font-size:20px;letter-spacing:-.4px}
+.simulator-connection{display:flex;align-items:center;gap:6px;font-size:10px;color:#8b9387;white-space:nowrap}
+.simulator-connection::before{content:"";width:6px;height:6px;border-radius:50%;background:#b7bdb3}
+.simulator-connection.online{color:#59754e}.simulator-connection.online::before{background:#769967}
+.simulator-intro{margin:8px 0 0;font-size:12px;line-height:1.7;color:#84907b}
+.simulator .board{position:relative;inset:auto;transform:none;max-width:none;width:100%;margin:22px 0 18px;padding:18px;gap:12px;background:linear-gradient(150deg,#e7ecdd,#d9e1cd);border-color:#cdd6c0;border-radius:18px;box-shadow:0 4px 0 #b9c5aa,0 10px 20px #3447220c}
+.simulator .key{height:83px;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:5px;margin:0;padding:13px 3px 0;border:1px solid #ccd5c0;border-radius:11px;background:#f9faf4;box-shadow:0 4px 0 #b8c4a9;color:#738365;font:inherit;cursor:pointer;position:relative;transition:transform .1s,background .1s,box-shadow .1s}
+.simulator .key-number{font-size:12px;font-weight:600;line-height:1.2}
+.simulator .key-state{font-size:9px;line-height:1.2;color:#a1ab94;white-space:nowrap}
+.simulator .key-light-well{width:30px;height:12px;bottom:10px}
+.simulator .key.target{outline:2px solid #65834f;outline-offset:3px}
+.simulator .key:focus-visible{outline:3px solid #526e41;outline-offset:3px}
+.simulator .key.checked::after{content:"✓";position:absolute;right:6px;top:5px;color:#6e9156;font-size:10px}
+.simulator .key.checked .key-state{color:#6d885b}
+.simulator .key.hardware-down{transform:translateY(3px);box-shadow:0 1px 0 #94a181;background:#d1dfc1;border-color:#8ca777}
+.simulator .key.hardware-down .key-number,.simulator .key.hardware-down .key-state{color:#38532a}
+.key-check-summary{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 0 0;font-size:11px;color:#78856b}
+.key-check-summary>div{display:flex;align-items:center;gap:8px}
+.key-check-summary output{font-size:11px;font-variant-numeric:tabular-nums;color:#4f6741;background:#edf2e7;border-radius:5px;padding:3px 6px}
+.key-check-summary button{font-size:10px;padding:4px 0}
+.key-test-status{margin:6px 0 0;color:#8d9685;font-size:10px;line-height:1.7;min-height:17px}
+.simulator-lighting{border-top:1px solid #e6eade;padding-top:17px;margin-top:17px}
+.simulator-control{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:10px}
+.simulator-control>span{font-size:11px;color:#7b876f;flex-shrink:0}
+.simulator .preview-tabs{width:190px;max-width:72%;margin:0;padding:3px;border-radius:8px;flex-shrink:1}
+html .simulator .preview-tabs button{font-size:10px;line-height:1.4;padding:7px 4px;min-width:0;white-space:normal}
+.test-target{display:flex;align-items:center;gap:7px;margin:14px 0 10px;min-height:19px;color:#667c55;font-size:11px}
+.test-target output{font-weight:600;letter-spacing:1px}
+.simulator-actions{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:8px}
+.simulator-actions button{padding:11px 5px;font-size:11px;white-space:normal}
+.simulator-actions #lights-off{background:#f7f8f3;color:#718063;border-color:#e1e7d8}
+.simulator .stop-test{font-size:11px;width:100%;padding:9px 0 0}
+.scope-note{font-size:10px;color:#919a87;line-height:1.6;margin:9px 0 0}
+.effect-advice{font-size:11px;line-height:1.7;color:#8c7649;padding:10px 12px;border-radius:8px;background:#f7f4ea;margin:12px 0 0}
+.effect-advice:empty{display:none}
+.simulator-help{margin:17px 0 0;border-top:1px solid #e6eade;padding-top:13px;font-size:10px;color:#8a9680}
+.simulator-help summary{cursor:pointer}.simulator-help p{line-height:1.8;margin:10px 0 0}
+.workspace.direct-mode>.states,.workspace.direct-mode>.editor{display:none}
+.workspace.direct-mode>.preview-column{grid-column:1/-1;justify-self:center;width:min(100%,420px)}
+.action-bar #storage-state{font-size:10px;color:#89947d}
+@media(min-width:1100px){.workspace{grid-template-columns:205px minmax(320px,1fr) 340px;gap:18px}}
+@media(min-width:850px) and (max-width:1099px){.workspace{grid-template-columns:135px minmax(0,1fr) 285px;gap:12px}.simulator{padding:18px}.simulator .board{padding:14px;gap:9px}.simulator .key{height:75px}.simulator-control{gap:8px}.simulator .preview-tabs{max-width:70%}}
+@media(min-width:641px) and (max-width:849px){.workspace{grid-template-columns:minmax(0,1fr) 285px;gap:14px}.states{grid-column:1/-1;position:static;max-height:none}.states #state-list{display:grid;grid-template-columns:repeat(5,1fr)}.states .small-note,.states .section-label,.states .state-card small,.states .state-card .arrow{display:none}.states .state-card{gap:7px;padding:9px 5px}.states .state-card strong{font-size:11px}.states .state-card .swatch{width:18px;height:18px}.workspace>.editor{grid-column:1;grid-row:2}.workspace>.preview-column{grid-column:2;grid-row:2}.simulator{padding:17px}}
+@media(max-width:640px){.states{position:static;max-height:none;overflow:visible}.preview-column{position:static;bottom:auto;filter:none;width:100%}.simulator{padding:22px}.simulator .board{max-width:340px;margin:22px auto 18px}.simulator .key{height:86px}.simulator-heading h2{font-size:21px}.simulator .preview-tabs{width:210px}html .simulator .preview-tabs button{font-size:11px}.workspace.direct-mode>.preview-column{width:100%}}
+@media(prefers-reduced-motion:reduce){.simulator .key{transition:none}}

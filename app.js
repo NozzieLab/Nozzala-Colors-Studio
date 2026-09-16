@@ -23,7 +23,7 @@
     const online=!!connection&&!connection.closed;
     $('custom-enabled').checked=customEnabled;
     $('custom-enabled').disabled=busy||testKey!==null||!online||!connection.supportsMode;
-    $('lighting-workspace').hidden=!customEnabled;
+    $('lighting-workspace').classList.toggle('direct-mode',!customEnabled);
     $('mode-description').textContent=!online?'连接键盘后可更改此高级设置。':customEnabled?'默认开启。关闭后直接使用应用发送的灯光；点击保存后生效。':'高级模式：直接使用应用发送的灯光，自定义设置仍保留。';
     $('mode-compatibility').hidden=!(online&&!connection.supportsMode);
     $('connect').disabled=busy||online; $('connect').hidden=online;
@@ -32,7 +32,10 @@
     for(const id of ['save','load'])$(id).disabled=busy||!online||testKey!==null;
     $('try-light').disabled=busy||!online||!customEnabled||testKey!==null;
     for(const id of ['scope-all','scope-one'])$(id).disabled=busy||testKey!==null;
-    $('reset-key-test').disabled=busy;
+    $('reset-key-test').disabled=busy||!keyChecks.some(k=>k.down||k.passed);
+    $('simulator-connection').textContent=online?'已连接':'离线预览';
+    $('simulator-connection').classList.toggle('online',online);
+    syncTestButton();
     renderKeyChecks();
     const identity=online?connection.identity:null;
     $('firmware-version').textContent=online?(identity?`键盘 v${identity.pcbRevision} · 固件 v${identity.firmwareVersion}`:'版本未识别 · 可以正常调整灯光'):'连接键盘后可查看设备信息';
@@ -162,20 +165,41 @@
   function previewMode(value){selected=value;$('normal-preview').setAttribute('aria-pressed',String(!value));$('selected-preview').setAttribute('aria-pressed',String(value));}
   $('normal-preview').onclick=()=>previewMode(false);$('selected-preview').onclick=()=>previewMode(true);
   function renderKeyChecks(){
-    if(!$('key-test-board').children.length)return;
-    [...$('key-test-board').children].forEach((tile,i)=>{const k=keyChecks[i];tile.classList.toggle('pressed',k.pressed);tile.classList.toggle('passed',k.passed);tile.querySelector('small').textContent=k.pressed?'已按下':k.passed?'通过':'等待按键';});
-    $('key-test-status').textContent=!connection?'连接键盘后开始检测':keyChecks.every(k=>k.passed)?'六个按键均已收到按下和松开消息':'请逐个按下并松开六个按键';
+    const online=!!connection&&!connection.closed;
+    [...$('board').children].forEach((tile,i)=>{
+      const k=keyChecks[i];
+      tile.classList.toggle('hardware-down',k.pressed);tile.classList.toggle('checked',k.passed);
+      tile.querySelector('.key-state').textContent=k.pressed?'按下':k.passed?'已检测':online?'待检测':'未连接';
+    });
+    const count=keyChecks.filter(k=>k.passed).length;
+    $('key-test-progress').textContent=`${count} / 6`;
+    $('key-test-status').textContent=!online?'连接后，逐个按下并松开实体键。':count===6?'六个按键均已通过检测。':'按下并松开实体键，对应键帽会高亮。';
+    $('reset-key-test').disabled=busy||!keyChecks.some(k=>k.down||k.passed);
   }
   function resetKeyChecks(){keyChecks.forEach(k=>Object.assign(k,{pressed:false,down:false,passed:false}));renderKeyChecks();}
   function onKey({key,pressed}){const k=keyChecks[key];k.pressed=pressed;if(pressed)k.down=true;else if(k.down){k.passed=true;k.down=false;}renderKeyChecks();}
   $('reset-key-test').onclick=resetKeyChecks;
-  for(let i=0;i<6;i++){const tile=document.createElement('div');const label=document.createElement('strong');label.textContent=String(i+1).padStart(2,'0');tile.append(label,document.createElement('small'));$('key-test-board').append(tile);}
-  function scope(value){singleScope=value;$('scope-all').setAttribute('aria-pressed',String(!value));$('scope-one').setAttribute('aria-pressed',String(value));$('scope-note').textContent=value?'点击灯位选择。单灯测试会关闭其他灯，5 秒后熄灭；等待 ChatGPT App 更新灯光。':'全部灯试亮 5 秒，然后恢复原灯光。';document.querySelectorAll('#board .key').forEach((k,i)=>k.classList.toggle('target',value&&targetKey===i));}
+  function syncTestButton(){
+    const testing=previewUntil>0||testKey!==null;
+    $('try-light').textContent=testing?'正在试灯…':'试灯 · 5 秒';
+    $('stop-preview').hidden=!testing;
+  }
+  function scope(value){
+    singleScope=value;$('scope-all').setAttribute('aria-pressed',String(!value));$('scope-one').setAttribute('aria-pressed',String(value));
+    $('scope-note').textContent=value?'其他灯会关闭；5 秒后熄灭测试灯。':'5 秒后恢复原灯光。';
+    $('target-label').textContent=value?'试亮灯位':'六个灯一起试亮';
+    $('target-key').hidden=!value;$('target-key').textContent=String(targetKey+1).padStart(2,'0');
+    [...$('board').children].forEach((k,i)=>{const target=value&&targetKey===i;k.classList.toggle('target',target);k.setAttribute('aria-pressed',String(target));});
+  }
   $('scope-all').onclick=()=>scope(false);$('scope-one').onclick=()=>scope(true);
   for(let i=0;i<6;i++){
-    const k=document.createElement('div');k.className='key';k.textContent=String(i+1).padStart(2,'0');k.tabIndex=0;k.setAttribute('role','button');k.setAttribute('aria-label',String(i+1));const choose=()=>{if(busy||testKey!==null)return;targetKey=i;scope(true);};k.onclick=choose;k.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();choose();}};
+    const k=document.createElement('button');k.type='button';k.className='key';k.setAttribute('aria-pressed','false');
+    const label=document.createElement('span');label.className='key-number';label.id=`key-number-${i}`;label.textContent=String(i+1).padStart(2,'0');
+    const status=document.createElement('span');status.className='key-state';status.id=`key-status-${i}`;
+    k.setAttribute('aria-labelledby',`${label.id} ${status.id}`);
+    k.onclick=()=>{if(busy||testKey!==null)return;targetKey=i;scope(true);};
     const well=document.createElement('span');well.className='key-light-well';well.setAttribute('aria-hidden','true');
-    const light=document.createElement('i');light.className='key-light';well.append(light);k.append(well);$('board').append(k);
+    const light=document.createElement('i');light.className='key-light';well.append(light);k.append(label,status,well);$('board').append(k);
   }
   const lights=[...document.querySelectorAll('.key-light')];
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
@@ -194,7 +218,7 @@
       // The device model, saved RGB, brightness and true black stay unchanged.
       light.style.opacity=peak?String(Math.pow(peak/240,.25)):'0';
     });
-    if(previewUntil && performance.now()>previewUntil){previewUntil=0;$('try-light').textContent='在设备上试灯 · 5 秒';}
+    if(previewUntil && performance.now()>previewUntil){previewUntil=0;syncTestButton();}
     requestAnimationFrame(animate);
   }
   $('connect').onclick=()=>work(async()=>{
@@ -222,7 +246,7 @@
   async function endSingle(){
     clearTimeout(testTimer);
     if(testKey!==null){const key=testKey;await connection.clearTestLight(key);testKey=null;}
-    previewUntil=0;$('try-light').textContent='在设备上试灯 · 5 秒';
+    previewUntil=0;syncTestButton();
     notice('测试灯已熄灭。ChatGPT App 再次更新时会显示当前状态。');
   }
   $('try-light').onclick=()=>work(async()=>{
@@ -236,10 +260,10 @@
       await connection.call(6,[...M.entryBytes(config[index]),Number(selected)]);
       notice('正在设备上试灯，5 秒后回到 ChatGPT App 当前状态。配置尚未写入存储。');
     }
-    previewUntil=performance.now()+5000;$('try-light').textContent='正在试灯 · 5 秒后自动结束';
+    previewUntil=performance.now()+5000;syncTestButton();
   });
-  $('stop-preview').onclick=()=>work(async()=>{if(testKey!==null){await endSingle();return;}await connection.call(7);previewUntil=0;$('try-light').textContent='在设备上试灯 · 5 秒';notice('试灯已结束，恢复 ChatGPT App 当前灯语。');});
-  $('lights-off').onclick=()=>work(async()=>{clearTimeout(testTimer);await connection.lightsOff();testKey=null;previewUntil=0;$('try-light').textContent='在设备上试灯 · 5 秒';notice('所有灯已熄灭。在 ChatGPT App 中切换聊天或触发状态更新，即可恢复灯光。');});
+  $('stop-preview').onclick=()=>work(async()=>{if(testKey!==null){await endSingle();return;}await connection.call(7);previewUntil=0;syncTestButton();notice('试灯已结束，恢复 ChatGPT App 当前灯语。');});
+  $('lights-off').onclick=()=>work(async()=>{clearTimeout(testTimer);await connection.lightsOff();testKey=null;previewUntil=0;syncTestButton();notice('所有灯已熄灭。在 ChatGPT App 中切换聊天或触发状态更新，即可恢复灯光。');});
   $('export').onclick=()=>{
     const blob=new Blob([JSON.stringify({format:'nozzala-codex-customized',version:2,customEnabled,states:config},null,2)+'\n'],{type:'application/json'});
     const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='nozzala-colors-lights.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
