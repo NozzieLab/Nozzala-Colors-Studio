@@ -1,15 +1,16 @@
 (function(root,factory){const api=factory(root);if(typeof module==='object'&&module.exports)module.exports=api;else root.NozzalaRhythm=api;})(typeof globalThis!=='undefined'?globalThis:this,root=>{
   'use strict';
   const order=[0,1,2,3,4,5],grades=['PERFECT','GREAT','GOOD','OK','MEH','MISS'];
+  // Display neighbouring physical columns as upper/lower pairs; chart keys stay unchanged.
+  const laneOrder=[0,3,1,4,2,5];
   const colors=['#90ccdb','#a4c97d','#e496a6','#dfb178','#c2a1e5','#89cabb'];
   const points=[305,300,200,100,50,0],ods={easy:2,normal:5,hard:8};
   // Casual-play windows requested for this keyboard; the osu! reference remains below.
   const timing={easy:[80,125,175,225,270],normal:[60,100,145,190,230],hard:[40,75,110,150,190]};
   function hitWindows(level='normal'){if(!Object.hasOwn(timing,level))throw new Error('无效难度');return [...timing[level]];}
   function layout(width,height){
-    const pad=Math.max(10,Math.min(20,width*.03)),gap=Math.max(12,Math.min(22,width*.036));
-    const size=Math.min((width-pad*2-gap*2)/3,(height-pad*2-gap)/2),left=(width-size*3-gap*2)/2,top=(height-size*2-gap)/2;
-    return order.map(key=>{const row=Math.floor(key/3),column=key%3,x=left+column*(size+gap),y=top+row*(size+gap);return {key,row,column,x,y,size,cx:x+size/2,startY:y+size*.14,hitY:y+size*.75};});
+    const pad=8,laneWidth=(width-pad*2)/6,keyHeight=Math.max(32,Math.min(44,height*.105)),hitY=height-pad-keyHeight-10;
+    return laneOrder.map((key,track)=>({key,track,row:Math.floor(key/3),column:key%3,tone:key<3?'black':'white',x:pad+track*laneWidth,width:laneWidth,cx:pad+(track+.5)*laneWidth,startY:10,hitY,keyY:hitY+9,keyHeight}));
   }
   // Adapted from osu!mania (MIT), pinned sources and licence in RHYTHM-SOURCES.md.
   function windows(od){const perfect=od<=5?22.4-.6*od:19.4-1.1*(od-5);return [perfect,64-3*od,97-3*od,127-3*od,151-3*od,188-3*od].map(v=>Math.floor(v)+.5);}
@@ -148,5 +149,5 @@
     }
     stop(){this.playing=false;this.loading?.abort();this.loading=null;root.clearInterval(this.timer);this.timer=null;for(const osc of this.voices){try{osc.stop();}catch{}}this.voices.clear();}
   }
-  return {order,colors,layout,hitWindows,grades,windows,chart,Game,parseMidi,Player};
+  return {order,laneOrder,colors,layout,hitWindows,grades,windows,chart,Game,parseMidi,Player};
 });

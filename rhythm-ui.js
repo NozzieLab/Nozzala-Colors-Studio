@@ -4,7 +4,7 @@
     const R=root.NozzalaRhythm,$=id=>doc.getElementById(id),songs=[...root.NozzalaMusic],player=new R.Player();
     let phase='idle',loading=false,game=null,song=null,raf=null,token=0,stopping=null,visible=false,offset=0,flight=2200,lastMask=-1,lastMaskAt=-Infinity,finishReason='',error='';
     const held=Array(6).fill(false),texts=new Map(),canvas=$('rhythm-canvas'),ctx=canvas.getContext('2d');
-    const colors=R.colors,motion=root.matchMedia?.('(prefers-reduced-motion: reduce)');
+    const motion=root.matchMedia?.('(prefers-reduced-motion: reduce)');
     let effects=[],lastFeedback=null,milestoneUntil=0,comboAnimation=null;
     const text=(id,value)=>{if(texts.get(id)!==String(value)){texts.set(id,String(value));$(id).textContent=value;}};
     const format=s=>`${Math.floor(Math.max(0,s)/60)}:${String(Math.floor(Math.max(0,s))%60).padStart(2,'0')}`;
@@ -39,39 +39,47 @@
     function paint(time=-1500){
       const rect=canvas.getBoundingClientRect();if(!rect.width)return;const dpr=Math.min(2,root.devicePixelRatio||1),w=Math.round(rect.width),h=Math.round(rect.height),now=root.performance.now(),reduced=!!motion?.matches;
       if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);}
-      ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);const cells=R.layout(w,h);
-      const notes=game?.notes||R.chart(songs.find(s=>s.id===$('rhythm-song').value)||songs[0],$('rhythm-difficulty').value),near=Array(6).fill(Infinity);
-      for(const note of notes){if(note.time>time+flight)break;if(note.result==null&&note.time>=time-(game?.windows[4]||230))near[R.order[note.lane]]=Math.min(near[R.order[note.lane]],Math.abs(note.time-time));}
-      for(const cell of cells){
-        const {key,x,y,size,cx,hitY,startY}=cell,color=colors[key],down=held[key],cue=Math.max(0,1-near[key]/350);
-        const latest=effects.findLast(e=>e.key===key),pulse=latest?Math.max(0,1-(now-latest.at)/420):0,accent=latest?.result===5?'#f38e85':color;
-        ctx.save();const fill=ctx.createLinearGradient(x,y,x,y+size);fill.addColorStop(0,'#202e38');fill.addColorStop(1,'#131e27');ctx.fillStyle=fill;rounded(x,y,size,size,14);ctx.fill();
-        ctx.strokeStyle=down?color:cue>.1?color+'90':'#3b4c57';ctx.lineWidth=down?2.5:1;ctx.stroke();
-        if(pulse||down){ctx.globalAlpha=down ? .13 : pulse*(reduced ? .13 : .25);ctx.fillStyle=accent;ctx.fill();ctx.globalAlpha=1;}
-        ctx.save();rounded(x+1,y+1,size-2,size-2,13);ctx.clip();
-        ctx.strokeStyle=color+'16';ctx.lineWidth=1;for(const side of [-1,1]){ctx.beginPath();ctx.moveTo(cx+side*size*.3,startY);ctx.lineTo(cx+side*size*.3,hitY);ctx.stroke();}
-        const beam=ctx.createLinearGradient(0,hitY-size*.45,0,hitY);beam.addColorStop(0,color+'00');beam.addColorStop(1,color+(down?'50':'16'));ctx.fillStyle=beam;ctx.fillRect(x+size*.15,startY,size*.7,hitY-startY);
-        const keyY=hitY+6+(down&&!reduced?2:0),keyHeight=Math.max(22,size*.17);
-        ctx.fillStyle=down?color:'#2c3c47';rounded(x+size*.13,keyY,size*.74,keyHeight,7);ctx.fill();ctx.strokeStyle=color+(down?'ff':'65');ctx.stroke();
-        ctx.fillStyle=down?'#13212a':color;ctx.font=`600 ${Math.max(13,size*.1)}px sans-serif`;ctx.textAlign='center';ctx.fillText(String(key+1).padStart(2,'0'),cx,keyY+keyHeight*.71);
-        ctx.shadowColor=color;ctx.shadowBlur=reduced?0:5+cue*10;ctx.fillStyle=cue>.2?'#f0f6f7':color+'b0';rounded(x+size*.13,hitY-2,size*.74,3,2);ctx.fill();ctx.shadowBlur=0;
-        for(const note of notes){
-          if(note.time>time+flight)break;if(R.order[note.lane]!==key||note.result!=null||note.time<time-(game?.windows[4]||230))continue;
-          const noteY=hitY-(note.time-time)/flight*(hitY-startY),bar=Math.max(4,size*.03),noteWidth=size*.68;
-          if(!reduced){const trail=ctx.createLinearGradient(0,noteY-20,0,noteY);trail.addColorStop(0,color+'00');trail.addColorStop(1,color+'35');ctx.fillStyle=trail;ctx.fillRect(cx-noteWidth/2,noteY-20,noteWidth,20);}
-          ctx.fillStyle=color;ctx.shadowColor=color;ctx.shadowBlur=reduced?0:8;rounded(cx-noteWidth/2,noteY-bar/2,noteWidth,bar,3);ctx.fill();ctx.shadowBlur=0;ctx.fillStyle='#ffffffb0';ctx.fillRect(cx-noteWidth/2+3,noteY-bar/2+1,noteWidth-6,1.5);
-        }
-        for(const effect of effects){
-          if(effect.key!==key)continue;const age=(now-effect.at)/650;if(age<0||age>1)continue;
-          const missed=effect.result===5,ink=missed?'#f38e85':color;ctx.globalAlpha=(1-age)*(reduced ? .6 : 1);ctx.strokeStyle=ink;ctx.fillStyle=ink;
-          if(!reduced&&!missed){
-            ctx.lineWidth=2*(1-age);rounded(cx-size*(.28+.16*age),hitY-5-size*.1*age,size*(.56+.32*age),size*(.21+.16*age),9);ctx.stroke();
-            if(effect.result<=2)for(let i=0;i<8;i++){const angle=i*Math.PI/4+key*.4,radius=size*(.08+age*.46);ctx.globalAlpha=(1-age)**2;ctx.fillRect(cx+Math.cos(angle)*radius-1.5,hitY+Math.sin(angle)*radius*.48-age*size*.1,3,3);}
-          }
-          if(effect===latest){ctx.globalAlpha=1-age;ctx.font=`700 ${Math.max(9,size*.068)}px sans-serif`;ctx.textAlign='center';ctx.fillText(effect.grade,cx,y+size*.1);}
-        }
-        ctx.restore();ctx.restore();
+      ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);const lanes=R.layout(w,h),byKey=new Map(lanes.map(lane=>[lane.key,lane])),hitY=lanes[0].hitY;
+      const notes=game?.notes||R.chart(songs.find(s=>s.id===$('rhythm-song').value)||songs[0],$('rhythm-difficulty').value);
+      ctx.save();rounded(1,1,w-2,h-2,11);ctx.clip();
+      for(const lane of lanes){
+        const {x,width,key,tone}=lane;
+        ctx.fillStyle=tone==='black'?'#343c48':'#242b35';ctx.fillRect(x,0,width,hitY+4);
+        ctx.fillStyle=lane.track%2===0?'#73809265':'#ffffff0c';ctx.fillRect(x,0,lane.track%2===0?2:1,hitY+4);
+        if(held[key]){const beam=ctx.createLinearGradient(0,hitY-100,0,hitY);beam.addColorStop(0,'#ccebe100');beam.addColorStop(1,'#ccebe13b');ctx.fillStyle=beam;ctx.fillRect(x+2,hitY-100,width-3,100);}
       }
+      // All notes have the same vertical time scale and cross the same line.
+      ctx.save();ctx.beginPath();ctx.rect(8,0,w-16,hitY+3);ctx.clip();
+      for(const note of notes){
+        if(note.time>time+flight)break;if(note.result!=null||note.time<time-(game?.windows[4]||230))continue;
+        const lane=byKey.get(R.order[note.lane]),{x,width,startY,tone}=lane,noteY=hitY-(note.time-time)/flight*(hitY-startY),bar=Math.max(9,Math.min(13,width*.16));
+        const inset=Math.max(4,width*.07),black=tone==='black';
+        ctx.shadowColor=black?'#000000':'#dce4ee';ctx.shadowBlur=reduced?0:3;
+        ctx.fillStyle=black?'#11151c':'#e2e6ed';rounded(x+inset,noteY-bar/2,width-inset*2,bar,2);ctx.fill();
+        ctx.shadowBlur=0;ctx.lineWidth=black?1.5:1;ctx.strokeStyle=black?'#c2ccd9':'#f8fafc';ctx.stroke();
+        ctx.fillStyle=black?'#ffffff35':'#7c8795';ctx.fillRect(x+inset+2,noteY+bar/2-2,width-inset*2-4,1);
+      }
+      ctx.restore();
+      ctx.fillStyle='#121820';ctx.fillRect(8,hitY+4,w-16,h-hitY-4);
+      ctx.shadowColor='#c7eadf';ctx.shadowBlur=reduced?0:8;ctx.fillStyle='#d8eee7';ctx.fillRect(8,hitY-1,w-16,2);ctx.shadowBlur=0;
+      for(const lane of lanes){
+        const {key,x,width,cx,keyHeight,tone}=lane,down=held[key],keyY=lane.keyY+(down&&!reduced?2:0),black=tone==='black';
+        ctx.fillStyle=black?'#11151c':'#e2e6ed';rounded(x+4,keyY,width-8,keyHeight,4);ctx.fill();ctx.strokeStyle=down?'#c4f6e4':black?'#8c9aac':'#f5f7fa';ctx.lineWidth=down?2:1;ctx.stroke();
+        ctx.fillStyle=black?'#e4eaf1':'#1c232c';ctx.font=`600 ${Math.max(13,Math.min(17,width*.22))}px sans-serif`;ctx.textAlign='center';ctx.fillText(String(key+1).padStart(2,'0'),cx,keyY+keyHeight*.64);
+        if(down){ctx.fillStyle='#a7dec8';ctx.fillRect(x+7,keyY+keyHeight-4,width-14,2);}
+      }
+      // Feedback is anchored at the shared line, away from the incoming-note area.
+      for(const effect of effects){
+        const age=(now-effect.at)/650;if(age<0||age>1)continue;
+        const lane=byKey.get(effect.key),{x,width,cx}=lane,missed=effect.result===5,ink=missed?'#ef9a93':'#bde9d9';
+        ctx.save();ctx.globalAlpha=(1-age)**2;ctx.fillStyle=ink;ctx.fillRect(x+3,hitY-2,width-6,4);
+        if(!reduced&&!missed){
+          ctx.strokeStyle=ink;ctx.lineWidth=2*(1-age);ctx.beginPath();ctx.ellipse(cx,hitY,width*(.3+age*.22),5+age*13,0,0,Math.PI*2);ctx.stroke();
+          if(effect.result<=2)for(let i=0;i<6;i++){const angle=Math.PI+i*Math.PI/5,spread=width*(.1+age*.5);ctx.fillRect(cx+Math.cos(angle)*spread-1,hitY+Math.sin(angle)*spread*.65,2,2);}
+        }
+        ctx.restore();
+      }
+      ctx.restore();
       $('rhythm-milestone').hidden=now>=milestoneUntil;
       const feedback=lastFeedback&&now-lastFeedback.at<550?lastFeedback:null;
       text('rhythm-judgement',phase==='playing'&&time<0?String(Math.ceil(-time/1000)):feedback?.grade||'');

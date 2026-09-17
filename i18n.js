@@ -5,6 +5,11 @@
 })(typeof globalThis!=='undefined'?globalThis:this,root=>{
   'use strict';
   const phrases={
+  "左列": "Left column",
+  "中列": "Middle column",
+  "右列": "Right column",
+  "黑色 · 上排 01 / 02 / 03": "Black · Top row 01 / 02 / 03",
+  "白色 · 下排 04 / 05 / 06": "White · Bottom row 04 / 05 / 06",
   "六键音游": "6-key rhythm",
   "音游": "Rhythm",
   "曲目": "Song",
@@ -14,8 +19,8 @@
   "快": "Fast",
   "连击": "Combo",
   "准确率": "Accuracy",
-  "两排三键，上排 01、02、03，下排 04、05、06。音符落到亮线时按对应实体键。": "Two rows of three keys: 01, 02, 03 above; 04, 05, 06 below. Press the matching physical key when its note reaches the light line.",
-  "上排 01 · 02 · 03，下排 04 · 05 · 06，与实体键盘位置一致。音符落到亮线时按下。": "Top: 01 · 02 · 03. Bottom: 04 · 05 · 06. Same positions as your keyboard. Press when the note reaches the light line.",
+  "六轨共用一条判定线，依次对应 01、04、02、05、03、06。黑色音符按上排，白色音符按下排。": "Six lanes share one judgement line: 01, 04, 02, 05, 03, 06. Black notes use the top keyboard row; white notes use the bottom row.",
+  "相邻的黑白两轨对应键盘同一列，音符到判定线时按下。": "Each black-and-white pair matches one keyboard column. Press when the note reaches the judgement line.",
   "演奏完成": "Song complete",
   "最高连击": "Best combo",
   "开始演奏": "Play song",
@@ -24,7 +29,7 @@
   "导入本地 MIDI": "Load local MIDI",
   "只在浏览器中使用，不上传。": "Used only in your browser. Never uploaded.",
   "曲目来源与玩法": "Music and gameplay sources",
-  "玩法参考 osu!mania，改为两排三键，放宽判定，并优先匹配最近的音符。保留单击、连击和准确率计分。": "Based on osu!mania, adapted to two rows of three keys with forgiving timing and nearest-note matching. Tap notes, combo and accuracy scoring are retained.",
+  "玩法参考 osu!mania，六轨共用一条判定线，以黑白区分键盘上下排。使用宽松判定、最近音符匹配、连击和准确率计分。": "Based on osu!mania: six lanes share one judgement line, with black and white marking the keyboard rows. Uses forgiving timing, nearest-note matching, combo and accuracy scoring.",
   "Für Elise 采用 Bernd Krueger 的钢琴演绎，保留强弱、速度变化与踏板，按 CC BY-SA 3.0 DE 许可使用。The Entertainer 按 Mutopia 原谱恢复强弱变化，使用 Alexander Holm 的 Salamander 钢琴采样（CC BY 3.0）。": "Für Elise uses Bernd Krueger’s piano interpretation, with dynamics, tempo changes and pedal, licensed under CC BY-SA 3.0 DE. The Entertainer restores the Mutopia score’s dynamics with Alexander Holm’s Salamander piano samples (CC BY 3.0).",
   "正在载入钢琴音频…": "Loading piano audio…",
   "钢琴音频加载失败，请重试。": "Piano audio could not load. Please try again.",
