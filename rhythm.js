@@ -1,7 +1,16 @@
 (function(root,factory){const api=factory(root);if(typeof module==='object'&&module.exports)module.exports=api;else root.NozzalaRhythm=api;})(typeof globalThis!=='undefined'?globalThis:this,root=>{
   'use strict';
-  const order=[0,3,1,4,2,5],grades=['PERFECT','GREAT','GOOD','OK','MEH','MISS'];
+  const order=[0,1,2,3,4,5],grades=['PERFECT','GREAT','GOOD','OK','MEH','MISS'];
+  const colors=['#90ccdb','#a4c97d','#e496a6','#dfb178','#c2a1e5','#89cabb'];
   const points=[305,300,200,100,50,0],ods={easy:2,normal:5,hard:8};
+  // Casual-play windows requested for this keyboard; the osu! reference remains below.
+  const timing={easy:[80,125,175,225,270],normal:[60,100,145,190,230],hard:[40,75,110,150,190]};
+  function hitWindows(level='normal'){if(!Object.hasOwn(timing,level))throw new Error('无效难度');return [...timing[level]];}
+  function layout(width,height){
+    const pad=Math.max(10,Math.min(20,width*.03)),gap=Math.max(12,Math.min(22,width*.036));
+    const size=Math.min((width-pad*2-gap*2)/3,(height-pad*2-gap)/2),left=(width-size*3-gap*2)/2,top=(height-size*2-gap)/2;
+    return order.map(key=>{const row=Math.floor(key/3),column=key%3,x=left+column*(size+gap),y=top+row*(size+gap);return {key,row,column,x,y,size,cx:x+size/2,startY:y+size*.14,hitY:y+size*.75};});
+  }
   // Adapted from osu!mania (MIT), pinned sources and licence in RHYTHM-SOURCES.md.
   function windows(od){const perfect=od<=5?22.4-.6*od:19.4-1.1*(od-5);return [perfect,64-3*od,97-3*od,127-3*od,151-3*od,188-3*od].map(v=>Math.floor(v)+.5);}
   const comboFactor=combo=>Math.min(Math.max(.5,Math.log(Math.max(1,combo))/Math.log(4)),Math.log(400)/Math.log(4));
@@ -24,28 +33,34 @@
     constructor(notes,level='normal'){
       if(!notes.length)throw new Error('这首 MIDI 没有可玩的音符');
       this.notes=notes.map(n=>({...n,result:null}));this.lanes=Array.from({length:6},(_,i)=>this.notes.filter(n=>n.lane===i));
-      this.cursor=Array(6).fill(0);this.held=Array(6).fill(false);this.windows=windows(ods[level]);this.counts=Array(6).fill(0);
+      this.cursor=Array(6).fill(0);this.held=Array(6).fill(false);this.windows=hitWindows(level);this.counts=Array(6).fill(0);this.feedback=[];
       this.combo=0;this.maxCombo=0;this.base=0;this.comboScore=0;this.judged=0;this.expire=0;this.last=null;this.active=true;
       this.maxComboScore=this.notes.reduce((s,_,i)=>s+300*comboFactor(i+1),0);
     }
-    judge(note,result,error){
+    judge(note,result,error,time=note.time){
       if(note.result!==null)return;
       note.result=result;this.counts[result]++;this.judged++;this.base+=points[result];
       this.combo=result===5?0:this.combo+1;this.maxCombo=Math.max(this.maxCombo,this.combo);
       this.comboScore+=(result===0?300:points[result])*comboFactor(this.combo);
       this.last={grade:grades[result],error};
+      this.feedback.push({key:order[note.lane],lane:note.lane,result,grade:grades[result],error,time,combo:this.combo});if(this.feedback.length>64)this.feedback.shift();
     }
+    drainFeedback(){return this.feedback.splice(0);}
     advance(time){
       if(!this.active)return;
-      while(this.expire<this.notes.length&&this.notes[this.expire].time+this.windows[4]<time){const n=this.notes[this.expire++];if(n.result===null)this.judge(n,5,null);}
+      while(this.expire<this.notes.length&&this.notes[this.expire].time+this.windows[4]<time){const n=this.notes[this.expire++];if(n.result===null)this.judge(n,5,null,time);}
     }
     key(key,pressed,time){
       const lane=order.indexOf(key);if(lane<0||typeof pressed!=='boolean')return;
       const repeat=this.held[lane];this.held[lane]=pressed;if(!this.active||!pressed||repeat)return;
-      this.advance(time);const notes=this.lanes[lane];while(notes[this.cursor[lane]]?.result!==null&&this.cursor[lane]<notes.length)this.cursor[lane]++;
-      const note=notes[this.cursor[lane]];if(!note)return;
-      const error=time-note.time,index=this.windows.findIndex(w=>Math.abs(error)<=w);
-      if(index>=0)this.judge(note,index,error);
+      this.advance(time);const notes=this.lanes[lane];while(this.cursor[lane]<notes.length&&notes[this.cursor[lane]].result!==null)this.cursor[lane]++;
+      let nearest=null,distance=Infinity;
+      for(let i=this.cursor[lane];i<notes.length&&notes[i].time<=time+this.windows[4];i++){
+        const note=notes[i],delta=Math.abs(time-note.time);if(note.result===null&&delta<=this.windows[4]&&delta<distance){nearest=note;distance=delta;}
+      }
+      if(!nearest)return; // A premature tap does not consume a future note as a MISS.
+      for(let i=this.cursor[lane];i<notes.length&&notes[i]!==nearest;i++)if(notes[i].result===null)this.judge(notes[i],5,null,time);
+      const error=time-nearest.time,index=this.windows.findIndex(w=>Math.abs(error)<=w);this.judge(nearest,index,error,time);
     }
     finish(complete){if(complete)this.advance(Infinity);this.active=false;this.held.fill(false);return this.snapshot();}
     snapshot(){const accuracy=this.judged?this.base/(305*this.judged):1;return {score:Math.round(150000*this.comboScore/this.maxComboScore+850000*Math.pow(accuracy,2+2*accuracy)*this.judged/this.notes.length),accuracy,combo:this.combo,maxCombo:this.maxCombo,counts:[...this.counts],judged:this.judged,total:this.notes.length,last:this.last};}
@@ -133,5 +148,5 @@
     }
     stop(){this.playing=false;this.loading?.abort();this.loading=null;root.clearInterval(this.timer);this.timer=null;for(const osc of this.voices){try{osc.stop();}catch{}}this.voices.clear();}
   }
-  return {order,grades,windows,chart,Game,parseMidi,Player};
+  return {order,colors,layout,hitWindows,grades,windows,chart,Game,parseMidi,Player};
 });
