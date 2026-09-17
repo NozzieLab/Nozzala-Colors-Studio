@@ -1,0 +1,32 @@
+.egg-tabs{display:flex;padding:4px;border:1px solid var(--border);border-radius:12px;margin:22px 0;background:var(--surface)}
+.egg-tabs button{border:0;background:transparent;font-size:12px;font-weight:500;padding:9px 22px;color:var(--muted)}
+.egg-tabs button[aria-pressed=true]{background:var(--surface-soft);color:var(--ink);box-shadow:0 1px 3px #0001}
+#egg-colors-panel{width:100%;display:flex;align-items:center;flex-direction:column}
+.mole-panel{width:100%;max-width:480px;margin:0 0 20px}
+.mole-setup{display:flex;align-items:center;justify-content:center;gap:12px;margin:0 0 10px;font-size:12px;color:var(--muted)}
+.mole-setup select{padding:8px 30px 8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--ink)}
+.mole-rules{font-size:11px;color:var(--muted);line-height:1.7;margin:8px 0 15px}
+.mole-hud{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;padding:14px 5px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.mole-hud span{display:block;font-size:10px;color:var(--muted);margin-bottom:7px}.mole-hud output{font-size:23px;font-variant-numeric:tabular-nums;font-weight:600}.mole-hud small{font-size:11px;color:var(--muted);margin-left:4px}
+.mole-board{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:22px 0 15px}
+.mole-hole{position:relative;aspect-ratio:1.3;overflow:hidden;background:radial-gradient(ellipse at 50% 80%,#243326 10%,#52674a 35%,#859676 38%,#b8c6a6 60%);border:1px solid #93a281;border-radius:18px;box-shadow:inset 0 3px 9px #0002;transition:border-color .1s}
+.mole-hole .hole-number{position:absolute;top:9px;left:12px;font-size:10px;color:#fff9;z-index:1;font-variant-numeric:tabular-nums}
+.mole-animal{position:absolute;width:66%;height:85%;bottom:-15%;left:17%;transform:translateY(100%);transition:transform .12s ease-out}
+.mole-hole.active{border-color:#efd779;box-shadow:0 0 0 2px #e9d675,0 0 22px #ecd46938}
+.mole-hole.active .mole-animal{transform:translateY(0)}
+.mole-animal svg{display:block;width:100%;height:100%}
+.mole-feedback{min-height:23px;font-size:12px;color:var(--muted);margin:5px 0 12px}
+.mole-feedback[data-kind=hit]{color:#67984f}.mole-feedback[data-kind=wrong]{color:#c06f51}
+.mole-controls{display:flex;gap:9px;justify-content:center}.mole-controls button{font-size:12px;padding:11px 22px}
+.mole-result{margin-top:17px;padding:20px;border:1px solid var(--border);border-radius:14px;background:var(--surface)}
+.mole-result h2{font-size:17px;margin:0 0 10px}.mole-result>output{font-size:44px;font-weight:600;letter-spacing:-1px;font-variant-numeric:tabular-nums}
+.mole-breakdown{display:flex;justify-content:center;gap:22px;margin-top:12px;font-size:11px;color:var(--muted)}.mole-breakdown output{display:block;font-size:18px;color:var(--ink);margin-top:6px}
+.mole-note{font-size:10px;line-height:1.7;color:var(--muted);margin:14px 0 0}.egg-page.game-view{justify-content:flex-start;padding-top:65px}.game-view h1{font-size:34px;margin:10px 0}.game-view .egg-eyebrow{margin:0}
+html[data-theme=dark] .egg-tabs button{background:transparent}html[data-theme=dark] .egg-tabs button[aria-pressed=true]{background:#3f5135;color:#e1f0d3}
+html[data-theme=dark] .mole-hole{background:radial-gradient(ellipse at 50% 80%,#0c120e 10%,#1b291d 35%,#3a4a2e 38%,#293526 65%);border-color:#435438}
+html[data-theme=dark] .mole-hole.active{border-color:#efd779}
+html[data-theme=dark] .mole-feedback[data-kind=hit]{color:#b2d197}html[data-theme=dark] .mole-feedback[data-kind=wrong]{color:#efa486}
+@media(max-width:480px){.egg-page.game-view{padding:80px 18px 30px}.mole-board{gap:10px}.mole-hud output{font-size:21px}.game-view .egg-tabs{margin:16px 0}.mole-breakdown{gap:18px}}
+@media(prefers-reduced-motion:reduce){.mole-animal,.mole-hole{transition:none}}
+
+.egg-page.game-view{padding-top:26px}.game-view .egg-eyebrow,.game-view .egg-signature,.game-view .egg-color-note{display:none}.game-view h1{font-size:29px;margin:4px 0 6px}.game-view .egg-tabs{margin:12px 0 16px}.mole-panel{max-width:440px}.mole-board{margin:16px 0 10px;gap:12px}.mole-hud{padding:10px 5px}.mole-result{margin:0 0 18px}.game-view .egg-actions{margin-bottom:7px}.game-view .egg-status{font-size:11px}.game-view .mole-note{margin-top:10px}@media(max-width:480px){.egg-page.game-view{padding-top:65px}.mole-board{gap:10px}}

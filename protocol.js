@@ -123,6 +123,10 @@
       await this.call(7);
       for(let id=0;id<6;id++)await this.rpc('v.oai.thstatus',[{id,c:packed[id],b:1,e:1,s:0}]);
     }
+    async moleLight(key){
+      if(key===null)return this.lightsOff();
+      return this.singleLight(key,{...M.defaults()[0],color:M.ledPresetColor('#FFD35E'),effect:1},false);
+    }
     async clearTestLight(key){await this.rpc('v.oai.thstatus',[{id:key,c:0,b:0,e:0,s:0}]);}
     cancel(error) { if(this.pending){clearTimeout(this.pending.timer);this.pending.reject(error);this.pending=null;} }
     dispose(error=new Error('连接已关闭')) {

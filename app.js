@@ -181,7 +181,7 @@
     });
   }
   function resetKeyStates(){keyPressed.fill(false);renderKeyStates();}
-  function onKey({key,pressed}){keyPressed[key]=pressed;renderKeyStates();}
+  function onKey({key,pressed}){keyPressed[key]=pressed;renderKeyStates();window.NozzalaTheme?.deviceKey({key,pressed});}
   function syncTestButton(){
     const testing=previewUntil>0||testKey!==null;
     $('try-light').textContent=testing?'正在试灯…':'试灯 · 5 秒';
@@ -286,6 +286,7 @@
     get busy(){return busy;},
     connect:()=>work(connectDevice,true),
     colors:colors=>eggWork(device=>device.lightColors(colors)),
+    mole:key=>eggWork(device=>device.moleLight(key)),
     off:()=>eggWork(device=>device.lightsOff())
   });
   palette();renderStates();syncEditor();controls();requestAnimationFrame(animate);
