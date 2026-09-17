@@ -25,7 +25,7 @@
   "只在浏览器中使用，不上传。": "Used only in your browser. Never uploaded.",
   "曲目来源与玩法": "Music and gameplay sources",
   "玩法参考 osu!mania 6K，使用单击音符、连击、准确率和相同的判定时窗与计分公式。": "Based on osu!mania 6K, using tap notes, combo, accuracy and its timing windows and scoring formula.",
-  "Für Elise 采用 Bernd Krueger 的钢琴演绎，保留强弱、速度变化与踏板，按 CC BY-SA 3.0 DE 许可使用。The Entertainer 来自 Mutopia 公版 MIDI。": "Für Elise uses Bernd Krueger’s piano interpretation, with dynamics, tempo changes and pedal, licensed under CC BY-SA 3.0 DE. The Entertainer uses public-domain MIDI from Mutopia.",
+  "Für Elise 采用 Bernd Krueger 的钢琴演绎，保留强弱、速度变化与踏板，按 CC BY-SA 3.0 DE 许可使用。The Entertainer 按 Mutopia 原谱恢复强弱变化，使用 Alexander Holm 的 Salamander 钢琴采样（CC BY 3.0）。": "Für Elise uses Bernd Krueger’s piano interpretation, with dynamics, tempo changes and pedal, licensed under CC BY-SA 3.0 DE. The Entertainer restores the Mutopia score’s dynamics with Alexander Holm’s Salamander piano samples (CC BY 3.0).",
   "正在载入钢琴音频…": "Loading piano audio…",
   "钢琴音频加载失败，请重试。": "Piano audio could not load. Please try again.",
   "来源与许可": "Sources and licences",
