@@ -5,6 +5,22 @@
 })(typeof globalThis!=='undefined'?globalThis:this,root=>{
   'use strict';
   const phrases={
+  "切换到浅色模式": "Switch to light mode",
+  "切换到深色模式": "Switch to dark mode",
+  "单击切换明暗模式，长按有惊喜": "Click to switch theme. Hold for a surprise.",
+  "← 返回": "\u2190 Back",
+  "你找到了。": "You found it.",
+  "给灯光一点玩心。": "A little room for light to play.",
+  "点一下圆灯，换个颜色": "Tap a light to change its color",
+  "换一组颜色": "Shuffle the colors",
+  "点一点，让颜色自由发挥。": "Tap around. Let the colors wander.",
+  "灯光 1": "Light 1",
+  "灯光 2": "Light 2",
+  "灯光 3": "Light 3",
+  "灯光 4": "Light 4",
+  "灯光 5": "Light 5",
+  "灯光 6": "Light 6",
+
   "未按下": "Not pressed",
   "键帽实时显示实体键的按下与松开。按键仍会执行 ChatGPT App 中的原有操作。": "Keycaps show physical key presses and releases live. Keys still perform their usual actions in ChatGPT App.",
   "你的键盘": "Your keyboard",
