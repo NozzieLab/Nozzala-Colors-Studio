@@ -51,7 +51,7 @@
       });this.onKey=onKey;
       this.device=device; this.onDisconnect=onDisconnect; this.pending=null; this.seq=Math.floor(Math.random()*256); this.closed=false;
       this.input=event=>{
-        for(const key of this.keys.feed(event.reportId,event.data))this.onKey(key);
+        for(const key of this.keys.feed(event.reportId,event.data))this.onKey({...key,time:event.timeStamp});
         try {
           const r=response(event.reportId,event.data), p=this.pending;
           if(!r||!p||p.seq!==r.seq||p.op!==r.op) return;
@@ -102,6 +102,7 @@
       });
     }
     async singleLight(key,entry,selected){
+      this.rhythmMask=null;
       if(!Number.isInteger(key)||key<0||key>5)throw new Error('无效灯位');
       M.entryBytes(entry);
       await this.call(7);
@@ -112,11 +113,14 @@
       await this.rpc('v.oai.thstatus',[{id:key,c:parseInt(entry.color.slice(1),16),b:Number((entry.brightness/255).toFixed(2)),e:effect===255?(selected?4:1):effect,s:Number((speed/255).toFixed(2))}]);
     }
     async lightsOff(){
+      this.rhythmMask=null;
       await this.call(7);
       for(let i=0;i<6;i++)await this.rpc('v.oai.thstatus',[{id:i,c:0,b:0,e:0,s:0}]);
       await this.rpc('v.oai.rgbcfg',{keys:{c:0,b:0,e:0,s:0}});
+      this.rhythmMask=0;
     }
     async lightColors(colors){
+      this.rhythmMask=null;
       if(!Array.isArray(colors)||colors.length!==6)throw new Error('需要六个灯位的颜色');
       // Reuse the palette's display-to-LED mixing; firmware retains its limiter.
       const packed=colors.map(color=>parseInt(M.ledPresetColor(color).slice(1),16));
@@ -126,6 +130,17 @@
     async moleLight(key){
       if(key===null)return this.lightsOff();
       return this.singleLight(key,{...M.defaults()[0],color:M.ledPresetColor('#FFD35E'),effect:1},false);
+    }
+    async rhythmLights(mask){
+      if(!Number.isInteger(mask)||mask<0||mask>63)throw new Error('无效灯位');
+      const old=this.rhythmMask,changed=old===null||old===undefined?63:old^mask;
+      const colors=['#90CCDB','#A4C97D','#E496A6','#DFB178','#C2A1E5','#89CABB'];
+      try{
+        for(const on of [false,true])for(let id=0;id<6;id++)if((changed&(1<<id))&&!!(mask&(1<<id))===on){
+          await this.rpc('v.oai.thstatus',[{id,c:on?parseInt(M.ledPresetColor(colors[id]).slice(1),16):0,b:on?1:0,e:on?1:0,s:0}]);
+        }
+        this.rhythmMask=mask;
+      }catch(error){this.rhythmMask=null;throw error;}
     }
     async clearTestLight(key){await this.rpc('v.oai.thstatus',[{id:key,c:0,b:0,e:0,s:0}]);}
     cancel(error) { if(this.pending){clearTimeout(this.pending.timer);this.pending.reject(error);this.pending=null;} }
