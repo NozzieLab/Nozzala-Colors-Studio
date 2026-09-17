@@ -4,6 +4,7 @@
   let config=M.defaults(), index=0, selected=false, edited=false, connection=null, busy=false, previewUntil=0;
   let singleScope=false,targetKey=0,testKey=null,testTimer=null;
   const keyPressed=Array(6).fill(false);
+  const idleWaiters=[];
   let draggingColor=false, customEnabled=true, modeEdited=false;
   const presetPalette=M.colors.concat(M.moreColors);
   const swatchColor=color=>{
@@ -43,6 +44,7 @@
     // Keep the exact saved snapshot stable while a device operation is in flight.
     document.querySelectorAll('.editor input,.editor select,.editor button').forEach(e=>e.disabled=busy||testKey!==null);
     if(!busy&&testKey===null) updateSpeed();
+    window.NozzalaTheme?.refreshDevice();
   }
   $('custom-enabled').onchange=()=>{
     customEnabled=$('custom-enabled').checked;modeEdited=true;edited=true;
@@ -50,9 +52,18 @@
     $('draft-detail').textContent='点击保存到设备后，开关和灯语一起生效';
     controls();
   };
-  async function work(action) {
-    if(busy) return;busy=true;controls();
-    try {await action();} catch(e) {notice(e.message||String(e),true);} finally {busy=false;controls();}
+  async function work(action,propagate=false) {
+    if(busy){if(propagate)throw new Error('请等待上一步完成');return;}busy=true;controls();
+    try {return await action();} catch(e) {notice(e.message||String(e),true);if(propagate)throw e;}
+    finally {busy=false;controls();idleWaiters.splice(0).forEach(resolve=>resolve());}
+  }
+  async function eggWork(action){
+    while(busy)await new Promise(resolve=>idleWaiters.push(resolve));
+    return work(async()=>{
+      if(!connection||connection.closed)throw new Error('设备未连接');
+      clearTimeout(testTimer);testKey=null;previewUntil=0;syncTestButton();
+      await action(connection);
+    },true);
   }
   function status(flags) {
     $('storage-state').textContent=flags&2?'设备有尚未保存的临时配置':flags&1?'已读取键盘保存的灯语':'设备正在使用 默认灯语';
@@ -213,7 +224,7 @@
     if(previewUntil && performance.now()>previewUntil){previewUntil=0;syncTestButton();}
     requestAnimationFrame(animate);
   }
-  $('connect').onclick=()=>work(async()=>{
+  async function connectDevice(){
     if(!navigator.hid||!window.isSecureContext) throw new Error('请在桌面 Chrome 或 Edge 中，通过本机启动地址或 HTTPS 打开。');
     const devices=await navigator.hid.requestDevice({filters:[H.filter]});if(!devices.length)return;
     const candidate=new H.Connection(devices[0],()=>{connection=null;previewUntil=0;clearTimeout(testTimer);testKey=null;resetKeyStates();$('storage-state').textContent='设备已断开';notice('设备已断开，页面中的配置仍保留。');controls();},onKey);
@@ -223,7 +234,8 @@
       if(!edited)loadConfig(r.config,r.flags,'已读取设备当前灯语');else status(r.flags);
       notice(edited?'设备已连接，保留了你的页面草稿。可以试灯或保存。':'设备已连接，已读取当前灯语。');
     }catch(e){await candidate.close().catch(()=>{});throw e;}
-  });
+  }
+  $('connect').onclick=()=>work(connectDevice);
   $('disconnect').onclick=()=>work(async()=>{if(testKey!==null)await endSingle();await connection.close();connection=null;previewUntil=0;clearTimeout(testTimer);testKey=null;resetKeyStates();$('storage-state').textContent='尚未连接设备';notice('已断开连接。已保存的灯语会继续在设备上生效。');});
   $('save').onclick=()=>work(async()=>{
     const snapshot=M.encode(config),mode=customEnabled;
@@ -269,6 +281,13 @@
     const imported=M.decode(M.encode(data.states));customEnabled=data.version===1?true:data.customEnabled;loadConfig(imported,undefined,'已导入灯语草稿');modeEdited=true;edited=true;$('draft-detail').textContent='点击保存到设备后长期生效';notice('备份已导入页面，尚未写入设备。');
   });
   window.addEventListener('beforeunload',event=>{if(edited||testKey!==null){event.preventDefault();event.returnValue='';}});
+  window.NozzalaTheme?.setDeviceBridge({
+    get connected(){return !!connection&&!connection.closed;},
+    get busy(){return busy;},
+    connect:()=>work(connectDevice,true),
+    colors:colors=>eggWork(device=>device.lightColors(colors)),
+    off:()=>eggWork(device=>device.lightsOff())
+  });
   palette();renderStates();syncEditor();controls();requestAnimationFrame(animate);
   if(!navigator.hid||!window.isSecureContext) notice('当前浏览器可离线编辑。连接设备请使用桌面 Chrome 或 Edge，直接打开本站 HTTPS 地址；本地运行也可使用 localhost。');
 })();

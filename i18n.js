@@ -5,6 +5,16 @@
 })(typeof globalThis!=='undefined'?globalThis:this,root=>{
   'use strict';
   const phrases={
+  "需要六个灯位的颜色": "Six light colors are required",
+  "连接键盘，让这些颜色亮起来。": "Connect your keyboard to bring these colors to life.",
+  "返回工作室连接键盘，即可同步灯光。": "Return to the studio and connect your keyboard to sync the lights.",
+  "正在同步到键盘…": "Syncing colors to your keyboard\u2026",
+  "六个颜色已同步到键盘。": "All six colors are synced to your keyboard.",
+  "所有灯已熄灭。": "All lights are off.",
+  "连接键盘": "Connect keyboard",
+  "回工作室连接": "Connect in the studio",
+  "圆灯 01–06 对应键盘的六个灯位。返回时会熄灯，操作 ChatGPT App 可重新接管。": "Lights 01\u201306 match the six keys. Returning turns them off; use ChatGPT App to take over again.",
+
   "切换到浅色模式": "Switch to light mode",
   "切换到深色模式": "Switch to dark mode",
   "单击切换明暗模式，长按有惊喜": "Click to switch theme. Hold for a surprise.",

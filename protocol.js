@@ -116,6 +116,13 @@
       for(let i=0;i<6;i++)await this.rpc('v.oai.thstatus',[{id:i,c:0,b:0,e:0,s:0}]);
       await this.rpc('v.oai.rgbcfg',{keys:{c:0,b:0,e:0,s:0}});
     }
+    async lightColors(colors){
+      if(!Array.isArray(colors)||colors.length!==6)throw new Error('需要六个灯位的颜色');
+      // Reuse the palette's display-to-LED mixing; firmware retains its limiter.
+      const packed=colors.map(color=>parseInt(M.ledPresetColor(color).slice(1),16));
+      await this.call(7);
+      for(let id=0;id<6;id++)await this.rpc('v.oai.thstatus',[{id,c:packed[id],b:1,e:1,s:0}]);
+    }
     async clearTestLight(key){await this.rpc('v.oai.thstatus',[{id:key,c:0,b:0,e:0,s:0}]);}
     cancel(error) { if(this.pending){clearTimeout(this.pending.timer);this.pending.reject(error);this.pending=null;} }
     dispose(error=new Error('连接已关闭')) {
