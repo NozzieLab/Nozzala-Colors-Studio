@@ -9,8 +9,11 @@
   const timing={easy:[80,125,175,225,270],normal:[60,100,145,190,230],hard:[40,75,110,150,190]};
   function hitWindows(level='normal'){if(!Object.hasOwn(timing,level))throw new Error('无效难度');return [...timing[level]];}
   function layout(width,height){
-    const pad=8,laneWidth=(width-pad*2)/6,keyHeight=Math.max(32,Math.min(44,height*.105)),hitY=height-pad-keyHeight-10;
-    return laneOrder.map((key,track)=>({key,track,row:Math.floor(key/3),column:key%3,tone:key<3?'black':'white',x:pad+track*laneWidth,width:laneWidth,cx:pad+(track+.5)*laneWidth,startY:10,hitY,keyY:hitY+9,keyHeight}));
+    const pad=8,laneWidth=(width-pad*2)/6,whiteHeight=Math.max(72,Math.min(110,height*.24)),hitY=height-pad-whiteHeight-12;
+    return laneOrder.map((key,track)=>{
+      const black=key<3,cx=pad+(track+.5)*laneWidth,column=key%3;
+      return {key,track,row:Math.floor(key/3),column,tone:black?'black':'white',x:pad+track*laneWidth,width:laneWidth,cx,startY:10,hitY,keyY:hitY+9,keyHeight:black?whiteHeight*.62:whiteHeight,keyX:black?cx-laneWidth*.36:pad+column*laneWidth*2+2,keyWidth:black?laneWidth*.72:laneWidth*2-4};
+    });
   }
   // Adapted from osu!mania (MIT), pinned sources and licence in RHYTHM-SOURCES.md.
   function windows(od){const perfect=od<=5?22.4-.6*od:19.4-1.1*(od-5);return [perfect,64-3*od,97-3*od,127-3*od,151-3*od,188-3*od].map(v=>Math.floor(v)+.5);}

@@ -62,11 +62,29 @@
       ctx.restore();
       ctx.fillStyle='#121820';ctx.fillRect(8,hitY+4,w-16,h-hitY-4);
       ctx.shadowColor='#c7eadf';ctx.shadowBlur=reduced?0:8;ctx.fillStyle='#d8eee7';ctx.fillRect(8,hitY-1,w-16,2);ctx.shadowBlur=0;
-      for(const lane of lanes){
-        const {key,x,width,cx,keyHeight,tone}=lane,down=held[key],keyY=lane.keyY+(down&&!reduced?2:0),black=tone==='black';
-        ctx.fillStyle=black?'#11151c':'#e2e6ed';rounded(x+4,keyY,width-8,keyHeight,4);ctx.fill();ctx.strokeStyle=down?'#c4f6e4':black?'#8c9aac':'#f5f7fa';ctx.lineWidth=down?2:1;ctx.stroke();
-        ctx.fillStyle=black?'#e4eaf1':'#1c232c';ctx.font=`600 ${Math.max(13,Math.min(17,width*.22))}px sans-serif`;ctx.textAlign='center';ctx.fillText(String(key+1).padStart(2,'0'),cx,keyY+keyHeight*.64);
-        if(down){ctx.fillStyle='#a7dec8';ctx.fillRect(x+7,keyY+keyHeight-4,width-14,2);}
+      // White keys form a continuous front bed; the shorter black keys sit above it.
+      for(const tone of ['white','black'])for(const lane of lanes){
+        if(lane.tone!==tone)continue;
+        const {key,width,cx,keyX,keyWidth,keyHeight}=lane,down=held[key],black=tone==='black',keyY=lane.keyY+(down&&!reduced?2:0);
+        ctx.save();
+        if(black){ctx.shadowColor='#0009';ctx.shadowBlur=down?3:7;ctx.shadowOffsetY=down?2:5;}
+        const face=ctx.createLinearGradient(0,keyY,0,keyY+keyHeight);
+        if(black){face.addColorStop(0,down?'#285347':'#424952');face.addColorStop(.14,down?'#21463d':'#252b34');face.addColorStop(.88,down?'#17382f':'#14181e');face.addColorStop(1,'#090c11');}
+        else{face.addColorStop(0,down?'#badace':'#e2e5e9');face.addColorStop(.18,down?'#ddf1e8':'#fafbfc');face.addColorStop(.94,down?'#c8e8db':'#e8ebef');face.addColorStop(1,'#b7bec8');}
+        ctx.fillStyle=face;
+        if(black)rounded(keyX,keyY,keyWidth,keyHeight,4);
+        else{
+          // A narrow rear and a broad front form the white-key shoulder below the black key.
+          const neck=lane.x+3,shoulder=keyY+keyHeight*.69,right=keyX+keyWidth,bottom=keyY+keyHeight;
+          ctx.beginPath();ctx.moveTo(neck,keyY);ctx.lineTo(right,keyY);ctx.lineTo(right,bottom-5);ctx.quadraticCurveTo(right,bottom,right-5,bottom);ctx.lineTo(keyX+5,bottom);ctx.quadraticCurveTo(keyX,bottom,keyX,bottom-5);ctx.lineTo(keyX,shoulder);ctx.lineTo(neck,shoulder);ctx.closePath();
+        }
+        ctx.fill();ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+        ctx.strokeStyle=down?'#92d7ba':black?'#687481':'#8f98a4';ctx.lineWidth=down?2:1;ctx.stroke();
+        ctx.fillStyle=black?'#6e788466':'#ffffffc0';ctx.fillRect(black?keyX+3:lane.x+5,keyY+2,black?keyWidth-6:width-9,1);
+        ctx.fillStyle=black?'#03060a':'#b0b8c4';ctx.fillRect(keyX+3,keyY+keyHeight-5,keyWidth-6,2);
+        ctx.fillStyle=black?'#edf0f5':'#303a45';ctx.font=`600 ${Math.max(10,Math.min(14,width*.18))}px sans-serif`;ctx.textAlign='center';ctx.fillText('SW'+(key+1),cx,keyY+keyHeight-13);
+        if(down){ctx.fillStyle=black?'#afe6cc':'#57a585';ctx.fillRect(keyX+5,keyY+keyHeight-8,keyWidth-10,2);}
+        ctx.restore();
       }
       // Feedback is anchored at the shared line, away from the incoming-note area.
       for(const effect of effects){
