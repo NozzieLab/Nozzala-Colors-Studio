@@ -77,6 +77,7 @@
       }
     }
     call(op,payload=[]) {
+      this.audioFrame=null;
       if(this.closed) return Promise.reject(new Error('设备未连接'));
       if(this.pending) return Promise.reject(new Error('请等待上一步完成'));
       const seq=this.seq=(this.seq+1)&255;
@@ -87,6 +88,7 @@
       });
     }
     rpc(method,params){
+      this.audioFrame=null;
       if(this.closed)return Promise.reject(new Error('设备未连接'));
       if(this.pending)return Promise.reject(new Error('请等待上一步完成'));
       const id=700+(this.seq=(this.seq+1)&255);
@@ -118,6 +120,7 @@
       for(let i=0;i<6;i++)await this.rpc('v.oai.thstatus',[{id:i,c:0,b:0,e:0,s:0}]);
       await this.rpc('v.oai.rgbcfg',{keys:{c:0,b:0,e:0,s:0}});
       this.rhythmMask=0;
+      this.audioFrame=Array.from({length:6},(_,id)=>({id,c:0,b:0,e:0,s:0}));
     }
     async lightColors(colors){
       this.rhythmMask=null;
@@ -141,6 +144,21 @@
         }
         this.rhythmMask=mask;
       }catch(error){this.rhythmMask=null;throw error;}
+    }
+    async audioLights(frame){
+      if(this.closed)throw new Error('设备未连接');
+      if(!Array.isArray(frame)||frame.length!==6)throw new Error('需要六个灯位的颜色');
+      const packed=frame.map((lamp,id)=>{
+        if(!lamp||!Number.isFinite(lamp.level)||lamp.level<0||lamp.level>1)throw new Error('无效灯光亮度');
+        const color=parseInt(M.ledPresetColor(lamp.color).slice(1),16),b=Math.round(lamp.level*20)/20;
+        return {id,c:b?color:0,b,e:b?1:0,s:0};
+      });
+      let old=this.audioFrame;this.rhythmMask=null;
+      try{
+        if(!old){await this.lightsOff();old=this.audioFrame;}
+        for(let id=0;id<6;id++)if(!old[id]||old[id].c!==packed[id].c||old[id].b!==packed[id].b)await this.rpc('v.oai.thstatus',[packed[id]]);
+        this.audioFrame=packed;this.rhythmMask=null;
+      }catch(error){this.audioFrame=null;throw error;}
     }
     async clearTestLight(key){await this.rpc('v.oai.thstatus',[{id:key,c:0,b:0,e:0,s:0}]);}
     cancel(error) { if(this.pending){clearTimeout(this.pending.timer);this.pending.reject(error);this.pending=null;} }

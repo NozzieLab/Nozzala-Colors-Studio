@@ -288,6 +288,7 @@
     colors:colors=>eggWork(device=>device.lightColors(colors)),
     mole:key=>eggWork(device=>device.moleLight(key)),
     rhythm:mask=>eggWork(device=>device.rhythmLights(mask)),
+    audio:frame=>eggWork(device=>device.audioLights(frame)),
     off:()=>eggWork(device=>device.lightsOff())
   });
   palette();renderStates();syncEditor();controls();requestAnimationFrame(animate);
